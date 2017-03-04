@@ -45,20 +45,20 @@
         }
     </script>
     <script type="x-shader/x-fragment" id="fshader">
-    precision mediump float;
-    varying vec3 vNormal;
-    varying vec3 viewCoords;
-    uniform samplerCube skybox;
-    uniform mat3 normalMV; // normal matrix of modelview matrix
-    uniform mat3 invMV;
-    void main() {
-        vec3 N = normalMV * vNormal;
-        vec3 V = viewCoords;
-        vec3 R = V - 2.0 * dot(V,N) * N;
-        R = invMV * R; // transform it back to model coordinates
-        gl_FragColor = textureCube(skybox, R);
-        // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
-    }
+        precision mediump float;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
+        uniform samplerCube skybox;
+        uniform mat3 normalMV; // normal matrix of modelview matrix
+        uniform mat3 invMV;
+        void main() {
+            vec3 N = normalMV * vNormal;
+            vec3 V = viewCoords;
+            vec3 R = V - 2.0 * dot(V,N) * N;
+            R = invMV * R; // transform it back to model coordinates
+            gl_FragColor = textureCube(skybox, R);
+            // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+        }
     </script>
     </head>
     <body style="background-color: #EEE">
