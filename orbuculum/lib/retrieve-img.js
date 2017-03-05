@@ -14,7 +14,7 @@ var newLatLng ={lat: 34.062587,  lng: -118.445364};
 
 var map;
 var marker;
-// var mapDiv = document.getElementById('map');
+var mapDiv = document.getElementById('map');
 // var skyImg =  document.getElementById('sky');
 // var grndImg = document.getElementById('grnd');
 // var westImg = document.getElementById('west');
@@ -29,7 +29,7 @@ var pos_z;
 var neg_z;
 var cubeMapImg = [];
 
-window.onload = function initMap() {
+function initMap() {
     map = new google.maps.Map(mapDiv, {
         center:  myLatLng,
         zoom: 16,
@@ -49,7 +49,6 @@ window.onload = function initMap() {
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,180,0,APIKey));
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,270,0,APIKey));
 	setImage();
-	
 }
 
 function setImage(){
@@ -163,16 +162,16 @@ function formUrlRoad(locLat,locLng,apiKey){
 
 function moveMarker(dir,loclat,loclng){
 	if(dir == "n"){
-		return {lat:(loclat+9000/(Math.PI*earthRadius)), lng:loclng}
+		return {lat:(loclat+3000/(Math.PI*earthRadius)), lng:loclng}
 	}
 	else if (dir == "s"){
-		return {lat:(loclat-9000/(Math.PI*earthRadius)), lng:loclng}
+		return {lat:(loclat-3000/(Math.PI*earthRadius)), lng:loclng}
 	}
 	else if (dir == "e"){
-		return {lat:loclat,lng:(loclng+9000/(Math.PI*earthRadius*Math.cos(Math.PI*loclat/180)))}
+		return {lat:loclat,lng:(loclng+3000/(Math.PI*earthRadius*Math.cos(Math.PI*loclat/180)))}
 	}
 	else{
-		return {lat:loclat,lng:(loclng-9000/(Math.PI*earthRadius*Math.cos(Math.PI*loclat/180)))}
+		return {lat:loclat,lng:(loclng-3000/(Math.PI*earthRadius*Math.cos(Math.PI*loclat/180)))}
 	}	
 }
 

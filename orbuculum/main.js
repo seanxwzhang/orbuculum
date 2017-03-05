@@ -16,8 +16,7 @@ var modelview = mat4.create();
 var normalMV = mat3.create();
 var invMV = mat3.create();
 
-var skyboxTex; // texture ID for the skybox
-var orbuculumTex = skyboxTex; // they are using the same cube mapping for now
+var textures = {};
 
 
 function draw() {
@@ -31,20 +30,19 @@ function draw() {
     mat3.fromMat4(invMV, modelview);
     mat3.invert(invMV, invMV);
 
-    // // draw skybox
-    if (skyboxTex) {
+    // draw skybox
+    if (textures.skyboxTex) {
         gl.useProgram(prog_Box);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.skyboxTex);
         gl.enableVertexAttribArray(skybox.coords_loc);
         skybox.render(projection, modelview);
         gl.disableVertexAttribArray(skybox.coords_loc);
     }
 
     // draw orbuculum
-    orbuculumTex = skyboxTex;
-    if (orbuculumTex && orbuculum) {
+    if (textures.orbuculumTex && orbuculum) {
         gl.useProgram(prog);
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, orbuculumTex);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.orbuculumTex);
         gl.enableVertexAttribArray(orbuculum.coords_loc);
         gl.enableVertexAttribArray(orbuculum.normal_loc);
         orbuculum.render(projection, modelview, normalMV, invMV);
@@ -54,21 +52,17 @@ function draw() {
 
 }
 
-function loadTextureCube(urls) {
+function loadTextureCube(texID, urls) {
     var ct = 0;
     var img = new Array(6);
-    var urls = [
-    "image/park/pos-x.jpg", "image/park/neg-x.jpg",
-    "image/park/pos-y.jpg", "image/park/neg-y.jpg",
-    "image/park/pos-z.jpg", "image/park/neg-z.jpg"
-    ];
     for (var i = 0; i < 6; i++) {
         img[i] = new Image();
+        img[i].crossOrigin = '';
         img[i].onload = function() {
             ct++;
             if (ct == 6) {
-                skyboxTex = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+                textures[texID] = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures[texID]);
                 var targets = [
                 gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
                 gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
@@ -127,5 +121,16 @@ function init() {
 
 // main function
 init();
-loadTextureCube();
+initMap();
+loadTextureCube('skyboxTex', [
+    "image/park/pos-x.jpg", "image/park/neg-x.jpg",
+    "image/park/pos-y.jpg", "image/park/neg-y.jpg",
+    "image/park/pos-z.jpg", "image/park/neg-z.jpg"
+    ]);
+loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+
+$(document).keydown(function(e){
+    moveLocation(e);
+    loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+})
 

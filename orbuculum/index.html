@@ -70,17 +70,23 @@
     </head>
     <body style="background-color: #EEE">
         <h2> Project Orbuculum </h2>
+        <div id="map"></div>
         <noscript><hr><h3>This page requires Javascript and a web browser that supports WebGL</h3><hr></noscript>
         <div>
             <canvas width=1400 height=800 id="glcanvas" style="background-color:black"></canvas>
         </div>
         <p id="message" style="font-weight:bold"></p>
-
+        <script
+        src="https://code.jquery.com/jquery-3.1.1.min.js"
+        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+        crossorigin="anonymous"></script>
         <script type="text/javascript" src="lib/webgl-debug.js"></script>
         <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
         <script type="text/javascript" src="lib/objects.js"></script>
         <script type="text/javascript" src="lib/utils.js"></script>
         <script type="text/javascript" src="lib/simple-rotator.js"></script>
+        <script type="text/javascript" src="lib/retrieve-img.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCSIanF_npOtptuVIacA2WBfJ3dADCJDM"></script>
         <script type="text/javascript" src="main.js"></script>
 
     </body>
