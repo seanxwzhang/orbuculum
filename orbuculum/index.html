@@ -25,8 +25,7 @@
         varying vec3 vcoords;
         uniform samplerCube skybox;
         void main() {
-            // gl_FragColor = textureCube(skybox, vcoords);
-            gl_FragColor = vec4(1.0,0.0,0.0,1.0);
+            gl_FragColor = textureCube(skybox, vcoords);
         }
     </script>
     <!-- Shaders for Ball -->
@@ -52,11 +51,19 @@
         uniform mat3 normalMV; // normal matrix of modelview matrix
         uniform mat3 invMV;
         void main() {
-            vec3 N = normalMV * vNormal;
-            vec3 V = viewCoords;
-            vec3 R = V - 2.0 * dot(V,N) * N;
-            R = invMV * R; // transform it back to model coordinates
-            gl_FragColor = textureCube(skybox, R);
+            // vec3 N = normalMV * vNormal;
+            // vec3 V = -viewCoords;
+            // vec3 R = V - 2.0 * dot(V,N) * N;
+            // R = invMV * R; // transform it back to model coordinates
+            // R = normalize(R);
+            // gl_FragColor = textureCube(skybox, R);
+
+            vec3 N = normalize(normalMV * vNormal);
+            vec3 V = -viewCoords;
+            vec3 R = -reflect(V,N);
+            vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
+            gl_FragColor = textureCube(skybox, T);
+            // gl_FragColor = vec4(vNormal.z,0,-vNormal.z, 1.0);
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
@@ -73,6 +80,7 @@
         <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
         <script type="text/javascript" src="lib/objects.js"></script>
         <script type="text/javascript" src="lib/utils.js"></script>
+        <script type="text/javascript" src="lib/simple-rotator.js"></script>
         <script type="text/javascript" src="main.js"></script>
 
     </body>

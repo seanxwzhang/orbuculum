@@ -9,6 +9,8 @@ var skybox;// skybox object
 var prog; // orbuculum program
 var orbuculum; // orbuculum object
 
+var rotator; // rotator object
+
 var projection = mat4.create();
 var modelview = mat4.create();
 var normalMV = mat3.create();
@@ -16,13 +18,14 @@ var invMV = mat3.create();
 
 var texID; // texture ID
 
+
 function draw() {
     gl.clearColor(0,0,0,1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     mat4.perspective(projection, Math.PI/3, canvas.width/canvas.height, 10, 2000);
 
-    mat4.translate(modelview, modelview, [0,0,-20]);
+    modelview = rotator.getViewMatrix();
     mat3.normalFromMat4(normalMV, modelview);
     mat3.fromMat4(invMV, modelview);
     mat3.invert(invMV, invMV);
@@ -43,9 +46,9 @@ function loadTextureCube(urls) {
     var ct = 0;
     var img = new Array(6);
     var urls = [
-    "image/street/pos-x.png", "image/street/neg-x.png",
-    "image/street/pos-y.png", "image/street/neg-y.png",
-    "image/street/pos-z.png", "image/street/neg-z.png"
+    "image/park/pos-x.jpg", "image/park/neg-x.jpg",
+    "image/park/pos-y.jpg", "image/park/neg-y.jpg",
+    "image/park/pos-z.jpg", "image/park/neg-z.jpg"
     ];
     for (var i = 0; i < 6; i++) {
         img[i] = new Image();
@@ -82,7 +85,7 @@ function init() {
         if (!gl) {
             throw "Could not create WebGL context.";
         }
-        gl = WebGLDebugUtils.makeDebugContext(gl, undefined, logAndValidate);
+        // gl = WebGLDebugUtils.makeDebugContext(gl, undefined, logAndValidate);
         var vshaderSource = getTextContent("vshaderBox");
         var fshaderSource = getTextContent("fshaderBox");
         prog_Box = createProgram(gl, vshaderSource, fshaderSource);
@@ -91,7 +94,10 @@ function init() {
         fshaderSource = getTextContent("fshader");
         prog = createProgram(gl, vshaderSource, fshaderSource);
 
+        rotator = new SimpleRotator(canvas, draw);
+        rotator.setView([0,0,1], [0,1,0], 20);
         orbuculum = new Sphere(5);
+        console.log(orbuculum.vertices.length);
 
         orbuculum.link(gl, prog);
         orbuculum.upload(gl);

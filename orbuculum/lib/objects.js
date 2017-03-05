@@ -59,44 +59,51 @@ class Shape {
 }
 
 class Sphere extends Shape {
-    constructor (radius) {
+    constructor (radius, slices, stacks) {
         super();
         this.radius = radius || 1;
-        this.resolution = 10;
-        this.n_latitude = Math.floor(radius * this.resolution);
-		this.n_longitude = Math.floor(radius * this.resolution);
-        for (let latNum = 0; latNum <= this.n_latitude; latNum++) {
-            let theta = latNum * Math.PI / this.n_latitude;
-            let sinTheta = Math.sin(theta);
-            let cosTheta = Math.cos(theta);
-            for (let lonNum = 0; lonNum <= this.n_longitude; lonNum ++) {
-                let phi = lonNum * 2 * Math.PI / this.n_longitude;
-                let sinPhi = Math.sin(phi);
-                let cosPhi = Math.cos(phi);
-
-                let x = cosPhi * sinTheta;
-                let y = cosTheta;
-                let z = sinTheta * sinPhi;
-
-                this.normals.push(new Float32Array([x,y,z]));
-                this.vertices.push(new Float32Array([radius * x, radius * y, radius * z]));
-                this.texCoords.push(new Float32Array([]));
-            }
+        this.resolution = 15;
+        var slices = slices || 32;
+        var stacks = stacks || 16;
+        var vertexCount = (slices+1)*(stacks+1);
+        this.vertices = new Float32Array( 3*vertexCount );
+        this.normals = new Float32Array( 3* vertexCount );
+        this.texCoords = new Float32Array( 2*vertexCount );
+        this.indices = new Uint16Array( 2*slices*stacks*3 );
+        var du = 2*Math.PI/slices;
+        var dv = Math.PI/stacks;
+        var i,j,u,v,x,y,z;
+        var indexV = 0;
+        var indexT = 0;
+        for (i = 0; i <= stacks; i++) {
+            v = -Math.PI/2 + i*dv;
+            for (j = 0; j <= slices; j++) {
+                u = j*du;
+                x = Math.cos(u)*Math.cos(v);
+                y = Math.sin(u)*Math.cos(v);
+                z = Math.sin(v);
+                this.vertices[indexV] = this.radius*x;
+                this.normals[indexV++] = x;
+                this.vertices[indexV] = this.radius*y;
+                this.normals[indexV++] = y;
+                this.vertices[indexV] = this.radius*z;
+                this.normals[indexV++] = z;
+                this.texCoords[indexT++] = j/slices;
+                this.texCoords[indexT++] = i/stacks;
+            } 
         }
-
-        for (let latNum = 0; latNum < this.n_latitude; latNum++) {
-            for (let lonNum = 0; lonNum < this.n_longitude; lonNum++) {
-              let first = (latNum * (this.n_longitude + 1)) + lonNum;
-              let second = first + this.n_longitude + 1;
-              
-              this.indices.push(first);
-              this.indices.push(second);
-              this.indices.push(first + 1);
-
-              this.indices.push(second);
-              this.indices.push(second + 1);
-              this.indices.push(first + 1);
-          }
+        var k = 0;
+        for (j = 0; j < stacks; j++) {
+            var row1 = j*(slices+1);
+            var row2 = (j+1)*(slices+1);
+            for (i = 0; i < slices; i++) {
+                this.indices[k++] = row1 + i;
+                this.indices[k++] = row2 + i + 1;
+                this.indices[k++] = row2 + i;
+                this.indices[k++] = row1 + i;
+                this.indices[k++] = row1 + i + 1;
+                this.indices[k++] = row2 + i + 1;
+            }
         }
     }
     link(gl, program) {
