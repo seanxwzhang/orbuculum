@@ -16,7 +16,8 @@ var modelview = mat4.create();
 var normalMV = mat3.create();
 var invMV = mat3.create();
 
-var texID; // texture ID
+var skyboxTex; // texture ID for the skybox
+var orbuculumTex = skyboxTex; // they are using the same cube mapping for now
 
 
 function draw() {
@@ -30,9 +31,20 @@ function draw() {
     mat3.fromMat4(invMV, modelview);
     mat3.invert(invMV, invMV);
 
+    // // draw skybox
+    if (skyboxTex) {
+        gl.useProgram(prog_Box);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
+        gl.enableVertexAttribArray(skybox.coords_loc);
+        skybox.render(projection, modelview);
+        gl.disableVertexAttribArray(skybox.coords_loc);
+    }
+
     // draw orbuculum
-    gl.useProgram(prog);
-    if (texID && orbuculum) {
+    orbuculumTex = skyboxTex;
+    if (orbuculumTex && orbuculum) {
+        gl.useProgram(prog);
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, orbuculumTex);
         gl.enableVertexAttribArray(orbuculum.coords_loc);
         gl.enableVertexAttribArray(orbuculum.normal_loc);
         orbuculum.render(projection, modelview, normalMV, invMV);
@@ -55,8 +67,8 @@ function loadTextureCube(urls) {
         img[i].onload = function() {
             ct++;
             if (ct == 6) {
-                texID = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, texID);
+                skyboxTex = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, skyboxTex);
                 var targets = [
                 gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
                 gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
@@ -96,11 +108,15 @@ function init() {
 
         rotator = new SimpleRotator(canvas, draw);
         rotator.setView([0,0,1], [0,1,0], 20);
-        orbuculum = new Sphere(5);
-        console.log(orbuculum.vertices.length);
 
+        skybox = new Cube(100);
+        orbuculum = new Sphere(5);
+
+        skybox.link(gl, prog_Box);
+        skybox.upload(gl);
         orbuculum.link(gl, prog);
         orbuculum.upload(gl);
+        
 
     }
     catch(e) {

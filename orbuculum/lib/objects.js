@@ -136,3 +136,36 @@ class Sphere extends Shape {
         gl.drawElements( gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0 );
     }
 }
+
+class Cube extends Shape {
+    constructor(sidelength) {
+        super();
+        this.sidelength = (sidelength || 1);
+        var s = this.sidelength / 2;
+        this.createFace( [-s,-s,s, s,-s,s, s,s,s, -s,s,s], [0,0,1] );
+        this.createFace( [-s,-s,-s, -s,s,-s, s,s,-s, s,-s,-s], [0,0,-1] );
+        this.createFace( [-s,s,-s, -s,s,s, s,s,s, s,s,-s], [0,1,0] );
+        this.createFace( [-s,-s,-s, s,-s,-s, s,-s,s, -s,-s,s], [0,-1,0] );
+        this.createFace( [s,-s,-s, s,s,-s, s,s,s, s,-s,s], [1,0,0] );
+        this.createFace( [-s,-s,-s, -s,-s,s, -s,s,s, -s,s,-s], [-1,0,0] );
+    }
+    createFace(xyz, normal) {
+        let start = Math.floor(this.vertices.length / 3);
+        for (let i = 0; i < 12; i++) {
+            this.vertices.push(xyz[i]);
+        }
+        for (let i = 0; i < 4; i++) {
+            this.normals.push(normal[0], normal[1], normal[2]);
+        }
+        this.texCoords.push(0,0,1,0,1,1,0,1);
+        this.indices.push(start, start + 1, start + 2, start, start + 2, start + 3);
+    }
+    render(projection, modelview) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
+        gl.vertexAttribPointer(this.coords_loc, 3, gl.FLOAT, false, 0, 0);
+        gl.uniformMatrix4fv(this.projection_loc, false, projection);
+        gl.uniformMatrix4fv(this.modelview_loc, false, modelview);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.drawElements( gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0 );
+    }
+}
