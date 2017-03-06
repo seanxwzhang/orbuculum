@@ -52,33 +52,54 @@ function draw() {
 
 }
 
+const inmemoryCanvases = [1,2,3,4,5,6]
+    .map(id => `inmemoryCanvas${id}`)
+    .map(id => {
+        const canvas = document.createElement('canvas');
+        canvas.setAttribute('id', id);
+        document.querySelector('#message').appendChild(canvas);
+        return canvas;
+    });
 function loadTextureCube(texID, urls) {
-    var ct = 0;
-    var img = new Array(6);
-    for (var i = 0; i < 6; i++) {
-        img[i] = new Image();
-        img[i].crossOrigin = '';
-        img[i].onload = function() {
-            ct++;
-            if (ct == 6) {
-                textures[texID] = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures[texID]);
-                var targets = [
-                gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
-                gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-                gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
-                ];
-                for (var j = 0; j < 6; j++) {
-                    gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img[j]);
-                    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-                    gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-                }
-                gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
-                draw();
+    Promise.all(urls.map((url, idx) => {
+        return new Promise(resolve => {
+            let img = new Image();
+            img.crossOrigin = '';
+            img.onload = function() {
+                resolve(img);
             }
+            img.src = url;
+        }).then(img => {
+            if (texID === 'orbuculumTex') {
+                return new Promise(resolve => {
+                    const blurRadius = 20;
+                    stackBlurImage(img, inmemoryCanvases[idx], blurRadius, false);
+                    const bluredImg = new Image();
+                    bluredImg.onload = function() {
+                        resolve(bluredImg);
+                    }
+                    bluredImg.src = inmemoryCanvases[idx].toDataURL();
+                })
+            } else {
+                return img;
+            }
+        })
+    })).then(imgs => {
+        textures[texID] = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures[texID]);
+        var targets = [
+            gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
+            gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+            gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
+        ];
+        for (let j = 0; j < 6; j++) {
+            gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[j]);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         }
-        img[i].src = urls[i];
-    }
+        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+        draw();
+    });
 }
 
 function init() {
@@ -110,7 +131,7 @@ function init() {
         skybox.upload(gl);
         orbuculum.link(gl, prog);
         orbuculum.upload(gl);
-        
+
 
     }
     catch(e) {
