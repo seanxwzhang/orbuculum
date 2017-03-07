@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "orbuculum-160808",
+  "private_key_id": "66e707429a807c9d9afd04064586d8f70e7e4a5e",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC2gEc3usdjQ/5R\naRxXiN594oX+RipLIINExV/HecR3d6HlPbCt9OyNzeuwBTU+Sq2tBxMcEqsewiOX\n4tdwYVb2eVYy2rq5/JAlqcLikMAE4SVVbno0IyYhROFBga5DYBZwcMUpAUnY1cq/\nmoh2m27bQvw/8ldzWwf1c71VNuA7F5kLuD80Rp4+OHx5Y/8dULhsPlatoV5Z9q1J\nvmBbr07g0hw5d8bbZ0oQLa4sOozJeLPrx0peuAjYZD+8KPBDaY3ubrBsxFbRpdoC\n40w7baKYaU+G9W/PsWFPub1QhpZMayV2ZoXeoKrwmvDIKzvroWgPvT+IYSe7x+r/\nPvcvMf/fAgMBAAECggEAStjlXGfP6lgybzUKmKPbjAlhJt2j7tfQvl2sYGUCPHTm\nAtyAH3f5pFa1uKUKJxf9jp7+KV9GqwC4FEzGSqLBRaiRv52RQ0Hf5HJxKPZwqg+k\nfhsnJ0bbFn3nXDRRQfSgf1Dgq2aJ4NIdquM34Fzy5B3e0mMTlo3Y/8ON/Oran6Dm\noZY36Gre4mZ+xu8qO0lhqjx5m0E5ytCxDCMDZprh0WxyKDda1odWlHB/Z+Na8msZ\nxjniYI0nucR8/3PNjmvKcymk4wqpVpziD7w99mUPeN792w7duwRgDHcQectRiEr3\nUmraWRRNqOipzeJxTML33b+oKzdmtjv+c5dXoK15AQKBgQDcUDWI48PCzS6vj7cT\nVaXPQpqjEL0PfeV9PTRmLRIgkFSk/2ivSXL+5npbWDujLocWIVbu0ADUMeR/PDJf\nY7CppCqsgsi+5SZ/jvfdLDsnWCNeAvuUhfS5v1+WvroVIPDgHWwKY5ek3q/TY8sG\nmSNMG+Cps32EbX8GpWrATWpaHwKBgQDUEBlp9bwusVqOoLy9WmfxweWmn73DChDi\nW+9Nslq73WmQQDxJD4YaecW59Lb5tC7u8jKOjC/Drkm9mt8u4i+PF/6P4Tl660a2\n0NGk8WnvOOWWIwdRFqCarcDVxj4oVC4/9mrE5W/cx3jBtDBdaLOERv8G11nC/OGo\notiLw6ciQQKBgBh/FqTE5oRnehRtP2b38/rKphURjGQHlJfLUWM3CbfzNGYwO/yZ\nhx7Ok7ZKZj8rsjuEs3zURfNSJNz83YD7va3vIguScy2+nvw58ld2TpF+XFhcroqC\nJobsv30scdZdlkrlGplBH6BmXlh71RxDtMgGpYFZAtDRt/kONYNyWCvzAoGAE91K\nNCXDsfAFFpUx+N7OG9RY6cnO4cVAnaOVAAcz/qMX715FB2b/3d0IS4oD1dIuD036\ntGWnV8IswCkQvPiNEe9idiHX247MefWHndbLYJBI2U6AsfTXqIWcKao/SlHQX0d6\n6uS/HMRGqIZzfVyAbGSmIQLtMpmznbNba4QxVMECgYB1voBpaa5y8F4BqwmTsXQt\nRMnfR1UuuIGt8QuJU0vcepRF6UGj1iLrN3a3XVgt2zmphIsRba8LWaMQHB7wEF5l\nioyc3LdOE+U4CYszH1JfhJ8xALGG8oT5QlgX3lnlkYRf3mfvIdHRKnn69boKF5Mi\nzcW6XBGLsUqUwkmSHz7Lrg==\n-----END PRIVATE KEY-----\n",
+  "client_email": "find-location-based-on-voice@orbuculum-160808.iam.gserviceaccount.com",
+  "client_id": "102986827386954545549",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/find-location-based-on-voice%40orbuculum-160808.iam.gserviceaccount.com"
+}

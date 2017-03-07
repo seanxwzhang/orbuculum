@@ -147,9 +147,9 @@ function init() {
 init();
 initMap();
 loadTextureCube('skyboxTex', [
-    "image/mobius/pos-x.png", "image/mobius/neg-x.png",
-    "image/mobius/pos-y.png", "image/mobius/neg-y.png",
-    "image/mobius/pos-z.png", "image/mobius/neg-z.png"
+    "image/strange/pos-x.png", "image/strange/neg-x.png",
+    "image/strange/pos-y.png", "image/strange/neg-y.png",
+    "image/strange/pos-z.png", "image/strange/neg-z.png"
     ]);
 loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 
