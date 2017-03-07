@@ -67,13 +67,47 @@
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
+    <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 20%;
+		width: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+	  #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+      }
+      #pac-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 12px;
+        padding: 0 11px 0 13px;
+        text-overflow: ellipsis;
+        width: 400px;
+      }
+      #pac-input:focus {
+        border-color: #4d90fe;
+      }
+    </style>
     </head>
     <body style="background-color: #EEE">
         <h2> Project Orbuculum </h2>
         <div id="map"></div>
         <noscript><hr><h3>This page requires Javascript and a web browser that supports WebGL</h3><hr></noscript>
+        <div id="pac-container">
+            <input id="pac-input" type="text" placeholder="Enter a location">
+        </div>
         <div>
-            <canvas width=1400 height=800 id="glcanvas" style="background-color:black"></canvas>
+            <canvas width=100% height=70% id="glcanvas" style="background-color:black"></canvas>
         </div>
         <p id="message" style="font-weight:bold"></p>
         <script
@@ -87,7 +121,7 @@
         <script type="text/javascript" src="lib/simple-rotator.js"></script>
         <script type="text/javascript" src="lib/retrieve-img.js"></script>
         <script type="text/javascript" src="lib/StackBlur.js"></script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCSIanF_npOtptuVIacA2WBfJ3dADCJDM"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCSIanF_npOtptuVIacA2WBfJ3dADCJDM&libraries=places"></script>
         <script type="text/javascript" src="main.js"></script>
 
     </body>

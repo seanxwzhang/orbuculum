@@ -28,6 +28,8 @@ var neg_x;
 var pos_z;
 var neg_z;
 var cubeMapImg = [];
+var input = document.getElementById('pac-input');
+var autocomplete;
 
 function initMap() {
     map = new google.maps.Map(mapDiv, {
@@ -40,7 +42,23 @@ function initMap() {
           position: myLatLng,
           map: map         
         });	
+
+	marker.addListener('dragend', function() 
+	{
+    	retrieveSV(marker.getPosition().toJSON());
+	});
 		
+
+	autocomplete = new google.maps.places.Autocomplete(input);
+	//autocomplete.bindTo('bounds', map);
+	
+	autocomplete.addListener('place_changed', function() {         
+        var place = autocomplete.getPlace();
+        if (!place.geometry) return;
+		retrieveSV(place.geometry.location.toJSON());
+		setImage();
+	});
+
 	//6 urls of images in the array are orderd as sky,ground,north,east,south,west
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,0,90,APIKey));
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,0,-90,APIKey));
@@ -124,9 +142,15 @@ function retrieveSV(LatLng){
 }
 
 function handleRoadRes(roadRes){
-	newLatLng.lat = roadRes.snappedPoints[0].location.latitude;
-	newLatLng.lng = roadRes.snappedPoints[0].location.longitude;
-	getJSON(formUrlSV(true,newLatLng.lat,newLatLng.lng,90,0,0,APIKey),handleSVRes);
+	if(!(Object.keys(roadRes).length === 0 && roadRes.constructor === Object)){
+		newLatLng.lat = roadRes.snappedPoints[0].location.latitude;
+		newLatLng.lng = roadRes.snappedPoints[0].location.longitude;
+		getJSON(formUrlSV(true,newLatLng.lat,newLatLng.lng,90,0,0,APIKey),handleSVRes);
+	} else {
+		map.panTo(myLatLng);
+		marker.setPosition(myLatLng);
+		setImage();
+	}
 }
 
 function handleSVRes(res){
@@ -143,6 +167,10 @@ function handleSVRes(res){
 		cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,90,0,APIKey));
 		cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,180,0,APIKey));
 		cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,270,0,APIKey));
+		setImage();
+	} else {
+		map.panTo(myLatLng);
+		marker.setPosition(myLatLng);
 		setImage();
 	}
 }

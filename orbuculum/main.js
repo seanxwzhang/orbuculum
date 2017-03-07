@@ -18,7 +18,6 @@ var invMV = mat3.create();
 
 var textures = {};
 
-
 function draw() {
     gl.clearColor(0,0,0,1);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -72,7 +71,7 @@ function loadTextureCube(texID, urls) {
         }).then(img => {
             if (texID === 'orbuculumTex') {
                 return new Promise(resolve => {
-                    const blurRadius = 20;
+                    const blurRadius = 0;
                     stackBlurImage(img, inmemoryCanvases[idx], blurRadius, false);
                     const bluredImg = new Image();
                     bluredImg.onload = function() {
@@ -105,6 +104,8 @@ function loadTextureCube(texID, urls) {
 function init() {
     try {
         canvas = document.getElementById("glcanvas");
+        canvas.width  = window.innerWidth;
+        canvas.height = window.innerHeight * 0.7;
         gl = canvas.getContext("webgl");
         if (!gl) {
             gl = canvas.getContext("experimental-webgl");
