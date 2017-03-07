@@ -93,6 +93,8 @@ function loadTextureCube(texID, urls) {
         ];
         for (let j = 0; j < 6; j++) {
             gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[j]);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
             gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         }
@@ -126,7 +128,7 @@ function init() {
         rotator.setView([0,0,1], [0,1,0], 20);
 
         skybox = new Cube(100);
-        orbuculum = new Sphere(5);
+        orbuculum = new Sphere(7);
 
         skybox.link(gl, prog_Box);
         skybox.upload(gl);
@@ -145,9 +147,9 @@ function init() {
 init();
 initMap();
 loadTextureCube('skyboxTex', [
-    "image/park/pos-x.jpg", "image/park/neg-x.jpg",
-    "image/park/pos-y.jpg", "image/park/neg-y.jpg",
-    "image/park/pos-z.jpg", "image/park/neg-z.jpg"
+    "image/mobius/pos-x.png", "image/mobius/neg-x.png",
+    "image/mobius/pos-y.png", "image/mobius/neg-y.png",
+    "image/mobius/pos-z.png", "image/mobius/neg-z.png"
     ]);
 loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 

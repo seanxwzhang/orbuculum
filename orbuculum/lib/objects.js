@@ -62,7 +62,7 @@ class Sphere extends Shape {
     constructor (radius, slices, stacks) {
         super();
         this.radius = radius || 1;
-        this.resolution = 15;
+        this.resolution = 30;
         var slices = slices || 32;
         var stacks = stacks || 16;
         var vertexCount = (slices+1)*(stacks+1);
