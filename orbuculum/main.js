@@ -153,8 +153,16 @@ loadTextureCube('skyboxTex', [
     ]);
 loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 
-$(document).keydown(function(e){
+/* $(document).keydown(function(e){
     moveLocation(e);
     loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
-})
+}) */
 
+/* mapDiv.addEventListener('keydown',function(e){
+	moveLocation(e);
+    loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+}); */
+
+mapDiv.addEventListener('imgready',function(){
+	loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+});

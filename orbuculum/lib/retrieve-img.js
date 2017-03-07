@@ -30,6 +30,7 @@ var neg_z;
 var cubeMapImg = [];
 var input = document.getElementById('pac-input');
 var autocomplete;
+var imgEvent = new Event('imgready');
 
 function initMap() {
     map = new google.maps.Map(mapDiv, {
@@ -40,12 +41,15 @@ function initMap() {
 		
 	marker = new google.maps.Marker({
           position: myLatLng,
-          map: map         
+          map: map,   
+		  draggable: true
         });	
 
 	marker.addListener('dragend', function() 
 	{
-    	retrieveSV(marker.getPosition().toJSON());
+    	newLatLng = marker.getPosition().toJSON();
+		retrieveSV(newLatLng);
+		//retrieveSV(marker.getPosition().toJSON());
 	});
 		
 
@@ -55,10 +59,17 @@ function initMap() {
 	autocomplete.addListener('place_changed', function() {         
         var place = autocomplete.getPlace();
         if (!place.geometry) return;
-		retrieveSV(place.geometry.location.toJSON());
-		setImage();
+		newLatLng = place.geometry.location.toJSON();
+		retrieveSV(newLatLng);
+		//retrieveSV(place.geometry.location.toJSON());		
+		//setImage();
 	});
 
+	mapDiv.addEventListener('keydown',function(e){
+		moveLocation(e);
+		//loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+	});
+	
 	//6 urls of images in the array are orderd as sky,ground,north,east,south,west
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,0,90,APIKey));
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,0,-90,APIKey));
@@ -82,6 +93,7 @@ function setImage(){
 	pos_x = cubeMapImg[3];
 	pos_z = cubeMapImg[4];
 	neg_x = cubeMapImg[5];
+	mapDiv.dispatchEvent(imgEvent);
 }
 
 moveLocation = function(e){
@@ -145,16 +157,20 @@ function handleRoadRes(roadRes){
 	if(!(Object.keys(roadRes).length === 0 && roadRes.constructor === Object)){
 		newLatLng.lat = roadRes.snappedPoints[0].location.latitude;
 		newLatLng.lng = roadRes.snappedPoints[0].location.longitude;
-		getJSON(formUrlSV(true,newLatLng.lat,newLatLng.lng,90,0,0,APIKey),handleSVRes);
-	} else {
+		//getJSON(formUrlSV(true,newLatLng.lat,newLatLng.lng,90,0,0,APIKey),handleSVRes);
+	} 
+	getJSON(formUrlSV(true,newLatLng.lat,newLatLng.lng,90,0,0,APIKey),handleSVRes);
+/* 	else {
 		map.panTo(myLatLng);
 		marker.setPosition(myLatLng);
-		setImage();
-	}
+		//setImage();
+	} */
 }
 
 function handleSVRes(res){
 	if(checkStatus(res)){
+		newLatLng.lat = res.location.lat;
+		newLatLng.lng = res.location.lng;
 		myLatLng = newLatLng;
 		map.panTo(myLatLng);
 		marker.setPosition(myLatLng);
@@ -171,7 +187,7 @@ function handleSVRes(res){
 	} else {
 		map.panTo(myLatLng);
 		marker.setPosition(myLatLng);
-		setImage();
+		//setImage();
 	}
 }
 
