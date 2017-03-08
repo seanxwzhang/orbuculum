@@ -84,6 +84,8 @@ if (!('webkitSpeechRecognition' in window)) {
       create_email = false;
       createEmail();
     }
+	//console.log(mapDiv.id);
+	mapDiv.dispatchEvent(vcEvent);
   };
 
   recognition.onresult = function(event) {

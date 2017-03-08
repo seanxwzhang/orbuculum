@@ -163,6 +163,12 @@ loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
     loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 }); */
 
+$(document).keydown(function(e){
+	if(e.keyCode==32){
+		startButton(e);
+	}
+});
+
 mapDiv.addEventListener('imgready',function(){
 	loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 });

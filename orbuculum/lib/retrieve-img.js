@@ -29,8 +29,11 @@ var pos_z;
 var neg_z;
 var cubeMapImg = [];
 var input = document.getElementById('pac-input');
+//var final_transcript = '';
 var autocomplete;
 var imgEvent = new Event('imgready');
+
+var vcEvent = new Event('vcready');
 
 function initMap() {
     map = new google.maps.Map(mapDiv, {
@@ -64,10 +67,18 @@ function initMap() {
 		//retrieveSV(place.geometry.location.toJSON());		
 		//setImage();
 	});
-
+	
 	mapDiv.addEventListener('keydown',function(e){
 		moveLocation(e);
 		//loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+	});
+	
+	mapDiv.addEventListener('vcready',function(){
+		var service = new google.maps.places.AutocompleteService();
+		var temp = {input: final_transcript};
+		//console.log(temp);
+		service.getQueryPredictions(temp, handleQuery);
+		//console.log(final_transcript);
 	});
 	
 	//6 urls of images in the array are orderd as sky,ground,north,east,south,west
@@ -78,6 +89,28 @@ function initMap() {
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,180,0,APIKey));
 	cubeMapImg.push(formUrlSV(false,myLatLng.lat,myLatLng.lng,90,270,0,APIKey));
 	setImage();
+}
+
+function handleQuery(predictions,querystatus){
+	if (querystatus != google.maps.places.PlacesServiceStatus.OK) {
+      alert(querystatus);
+      return;
+    }
+	//console.log(predictions);
+	if(predictions.length>0){
+		var res_placeid = predictions[0].place_id;
+		var service = new google.maps.places.PlacesService(map);
+		service.getDetails({
+          placeId: res_placeid
+        }, function(place, status) {
+				if (status === google.maps.places.PlacesServiceStatus.OK) {
+					//console.log(place.geometry.location.toJSON());
+					newLatLng = place.geometry.location.toJSON();
+					retrieveSV(newLatLng);
+				}
+			}
+		)
+	}
 }
 
 function setImage(){
