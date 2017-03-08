@@ -56,7 +56,7 @@ const inmemoryCanvases = [1,2,3,4,5,6]
     .map(id => {
         const canvas = document.createElement('canvas');
         canvas.setAttribute('id', id);
-        document.querySelector('#message').appendChild(canvas);
+        canvas.width = 1; canvas.height = 1;
         return canvas;
     });
 function loadTextureCube(texID, urls) {
