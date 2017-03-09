@@ -106,8 +106,8 @@ function loadTextureCube(texID, urls) {
 function init() {
     try {
         canvas = document.getElementById("glcanvas");
-        canvas.width  = window.innerWidth;
-        canvas.height = window.innerHeight * 0.7;
+        // canvas.width  = window.innerWidth;
+        // canvas.height = window.innerHeight * 0.7;
         gl = canvas.getContext("webgl");
         if (!gl) {
             gl = canvas.getContext("experimental-webgl");
