@@ -16,10 +16,14 @@ var modelview = mat4.create();
 var normalMV = mat3.create();
 var invMV = mat3.create();
 
+var oldmodelview = mat4.create();
+var lightPosition = vec3.fromValues(10,10,-10);
+
 var textures = {};
 
 function draw() {
     gl.clearColor(0,0,0,1);
+	
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     mat4.perspective(projection, Math.PI/3, canvas.width/canvas.height, 10, 2000);
@@ -34,13 +38,15 @@ function draw() {
         gl.useProgram(prog_Box);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.skyboxTex);
         gl.enableVertexAttribArray(skybox.coords_loc);
-        skybox.render(projection, modelview);
+        skybox.render(projection, oldmodelview);
         gl.disableVertexAttribArray(skybox.coords_loc);
     }
 
     // draw orbuculum
     if (textures.orbuculumTex && orbuculum) {
         gl.useProgram(prog);
+		gl.uniform3fv(gl.getUniformLocation(prog,"lightPosition"),lightPosition);
+		gl.uniform1f(gl.getUniformLocation(prog,"shininess"),50);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.orbuculumTex);
         gl.enableVertexAttribArray(orbuculum.coords_loc);
         gl.enableVertexAttribArray(orbuculum.normal_loc);
@@ -124,10 +130,15 @@ function init() {
         fshaderSource = getTextContent("fshader");
         prog = createProgram(gl, vshaderSource, fshaderSource);
 
+		gl.enable(gl.DEPTH_TEST);
+		
         rotator = new SimpleRotator(canvas, draw);
         rotator.setView([0,0,1], [0,1,0], 20);
-
-        skybox = new Cube(100);
+		
+		oldmodelview = rotator.getViewMatrix();
+		
+		
+        skybox = new Cube(25);
         orbuculum = new Sphere(7);
 
         skybox.link(gl, prog_Box);

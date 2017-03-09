@@ -26,6 +26,7 @@
         uniform samplerCube skybox;
         void main() {
             gl_FragColor = textureCube(skybox, vcoords);
+			//gl_FragColor = vec4(0.5,0.5,0.5,1.0);
         }
     </script>
     <!-- Shaders for Ball -->
@@ -40,7 +41,8 @@
             vec4 eyeCoords = modelview * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
             viewCoords = eyeCoords.xyz;
-            vNormal = normal;
+            //vNormal = normal;
+			vNormal = vec3(modelview * vec4(normal,0.0));
         }
     </script>
     <script type="x-shader/x-fragment" id="fshader">
@@ -50,6 +52,8 @@
         uniform samplerCube skybox;
         uniform mat3 normalMV; // normal matrix of modelview matrix
         uniform mat3 invMV;
+		uniform vec3 lightPosition;
+		uniform float shininess;
         void main() {
             // vec3 N = normalMV * vNormal;
             // vec3 V = -viewCoords;
@@ -58,11 +62,25 @@
             // R = normalize(R);
             // gl_FragColor = textureCube(skybox, R);
 
-            vec3 N = normalize(normalMV * vNormal);
+			vec3 toLightNormal = normalize(lightPosition - viewCoords);
+			
+            //vec3 N = normalize(normalMV * vNormal);
+			vec3 N = normalize(vNormal);
             vec3 V = -viewCoords;
-            vec3 R = -reflect(V,N);
+			vec3 norV = normalize(V);
+            //vec3 R = -reflect(V,N);
+			vec3 R = reflect(-norV,N);
+			vec3 norR = normalize(R);
+			
+			vec3 Half = normalize( toLightNormal + norV );
             vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
-            gl_FragColor = textureCube(skybox, T);
+			float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
+			if(dot(N, toLightNormal) < 0.0)spec=0.0;
+			float lightIntensity = 0.6 + 0.4 * max(dot(N, toLightNormal), 0.0)+ spec;
+			vec4 cubetex = textureCube(skybox, T);
+            gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+			//gl_FragColor = vec4(vec3(0.5,0.5,0.5)*lightIntensity,1.0);
+			//gl_FragColor = cubetex;
             // gl_FragColor = vec4(vNormal.z,0,-vNormal.z, 1.0);
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
