@@ -36,10 +36,13 @@ function draw() {
     // draw skybox
     if (textures.skyboxTex) {
         gl.useProgram(prog_Box);
+		gl.uniform3fv(gl.getUniformLocation(prog_Box,"lightPosition"),lightPosition);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.skyboxTex);
         gl.enableVertexAttribArray(skybox.coords_loc);
+		gl.enableVertexAttribArray(skybox.normal_loc);
         skybox.render(projection, oldmodelview);
         gl.disableVertexAttribArray(skybox.coords_loc);
+		gl.disableVertexAttribArray(skybox.normal_loc);
     }
 
     // draw orbuculum

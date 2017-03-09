@@ -13,19 +13,35 @@
         uniform mat4 projection;
         uniform mat4 modelview;
         attribute vec3 coords;
+		attribute vec3 normal;
         varying vec3 vcoords;
+		varying vec3 viewCoords;
+		varying vec3 vNormal;
         void main() {
             vec4 eyeCoords = modelview * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
             vcoords = coords;// normalized already
+			viewCoords = vec3(eyeCoords);
+			vNormal = vec3(modelview * vec4(normal,0.0));
         }
     </script>
     <script type="x-shader/x-fragment" id="fshaderBox">
         precision mediump float;
         varying vec3 vcoords;
+		varying vec3 vNormal;
+		varying vec3 viewCoords;
         uniform samplerCube skybox;
+		uniform vec3 lightPosition;
         void main() {
-            gl_FragColor = textureCube(skybox, vcoords);
+			
+ 			vec3 toLightNormal = normalize(lightPosition - viewCoords);
+			vec3 N = normalize(-vNormal);
+			float lightIntensity = 0.3 + 0.8 * max(dot(N, toLightNormal), 0.0);
+			vec4 cubetex = textureCube(skybox, vcoords);
+			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a); 
+			
+			//gl_FragColor = vec4(vec3(0.5,0.5,0.5) * lightIntensity, 1.0);
+            //gl_FragColor = textureCube(skybox, vcoords);
 			//gl_FragColor = vec4(0.5,0.5,0.5,1.0);
         }
     </script>
@@ -76,7 +92,7 @@
             vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
 			float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
 			if(dot(N, toLightNormal) < 0.0)spec=0.0;
-			float lightIntensity = 0.6 + 0.4 * max(dot(N, toLightNormal), 0.0)+ spec;
+			float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0) + spec;
 			vec4 cubetex = textureCube(skybox, T);
             gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
 			//gl_FragColor = vec4(vec3(0.5,0.5,0.5)*lightIntensity,1.0);
@@ -85,6 +101,7 @@
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
+	
     <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>

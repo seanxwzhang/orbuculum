@@ -160,9 +160,28 @@ class Cube extends Shape {
         this.texCoords.push(0,0,1,0,1,1,0,1);
         this.indices.push(start, start + 1, start + 2, start, start + 2, start + 3);
     }
+	
+	link(gl, program) {
+        super.link(gl, program);
+        this.normal_loc = gl.getAttribLocation(program, "normal");
+	
+	}
+	
+	upload(gl) {
+        super.upload(gl);
+        this.normalBuffer = gl.createBuffer();
+        // push normals to GPU
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(this.normals)), gl.STATIC_DRAW);
+
+        this.copy_to_GPU = true;
+    }
+	
     render(projection, modelview) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
         gl.vertexAttribPointer(this.coords_loc, 3, gl.FLOAT, false, 0, 0);
+		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
+        gl.vertexAttribPointer(this.normal_loc, 3, gl.FLOAT, false, 0, 0);
         gl.uniformMatrix4fv(this.projection_loc, false, projection);
         gl.uniformMatrix4fv(this.modelview_loc, false, modelview);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
