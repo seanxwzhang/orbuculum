@@ -3,14 +3,6 @@
     <head>
     <meta charset="UTF-8">
     <title>Orbuculum</title>
-    <script> // compatibility 
-        (function(e, p){
-            var m = location.href.match(/platform=(win8|win|mac|linux|cros)/);
-            e.id = (m && m[1]) ||
-                (p.indexOf('Windows NT 6.2') > -1 ? 'win8' : p.indexOf('Windows') > -1 ? 'win' : p.indexOf('Mac') > -1 ? 'mac' : p.indexOf('CrOS') > -1 ? 'cros' : 'linux');
-            e.className = e.className.replace(/\bno-js\b/,'js');
-        })(document.documentElement, window.navigator.userAgent)
-    </script>
     <!-- This index.html file contains two shader programs that renders the crystall ball based on environment map generated from Google Streetveiw API
 
     Reference: http://math.hws.edu/eck/cs424/notes2013/webgl/skybox-and-reflection/skybox-and-env-map.html
@@ -75,92 +67,69 @@
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
-    <style>
-      /* Always set the map height explicitly to define the size of the div
-       * element that contains the map. */
-      #map {
-        height: 20%;
-		width: 100%;
-      }
-      /* Optional: Makes the sample page fill the window. */
-      html, body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-	  #pac-container {
-        padding-bottom: 12px;
-        margin-right: 12px;
-      }
-      #pac-input {
-        background-color: #fff;
-        font-family: Roboto;
-        font-size: 15px;
-        font-weight: 300;
-        margin-left: 12px;
-        padding: 0 11px 0 13px;
-        text-overflow: ellipsis;
-        width: 400px;
-      }
-      #pac-input:focus {
-        border-color: #4d90fe;
-      }
-    </style>
+    <link rel="stylesheet" type="text/css" href="style.css">
     </head>
-    <body style="background-color: #EEE">
-        <h2> Project Orbuculum </h2>
-        <div id="map" tabindex="0"></div>
-        <noscript><hr><h3>This page requires Javascript and a web browser that supports WebGL</h3><hr></noscript>
-        <div id="pac-container" >
-            <input id="pac-input" type="text" placeholder="Enter a location" >
-			
-        </div>
+    <body>
+        <h1>Orbuculum</h1>
         <div class="browser-landing" id="main">
-        <div class="compact marquee">
-            <div id="info">
-            <p id="info_start">
-                Orbuculum, show me...
-            </p>
-            <p id="info_speak_now" style="display:none">
-                Speak now.
-            </p>
-            <p id="info_no_speech" style="display:none">
-                No speech was detected. You may need to adjust your
-                settings</a>.
-            </p>
-            <p id="info_no_microphone" style="display:none">
-                No microphone was found. Ensure that a microphone is installed and that
-                microphone settings</a> are configured correctly.
-            </p>
-            <p id="info_allow" style="display:none">
-                Click the "Allow" button above to enable your microphone.
-            </p>
-            <p id="info_denied" style="display:none">
-                Permission to use microphone was denied.
-            </p>
-            <p id="info_blocked" style="display:none">
-                Permission to use microphone is blocked. To change, go to
-                chrome://settings/contentExceptions#media-stream
-            </p>
-            <p id="info_upgrade" style="display:none">
-                Web Speech API is not supported by this browser. Upgrade to 
-            </p>
-            </div>
-            <div id="div_start">
-            <button id="start_button" onclick="startButton(event)"><img alt="Start" id="start_img"
-            src="image/mic.gif"></button>
-            </div>
-            <div id="results">
-            <span class="final" id="final_span"></span> <span class="interim" id=
-            "interim_span"></span>
+            <div class="compact marquee">
+                <div id="info">
+                <p id="info_start">
+                    Tell me the place you wanna see...
+                </p>
+                <p id="info_speak_now" style="display:none">
+                    Speak now.
+                </p>
+                <p id="info_no_speech" style="display:none">
+                    No speech was detected. You may need to adjust your
+                    settings</a>.
+                </p>
+                <p id="info_no_microphone" style="display:none">
+                    No microphone was found. Ensure that a microphone is installed and that
+                    microphone settings</a> are configured correctly.
+                </p>
+                <p id="info_allow" style="display:none">
+                    Click the "Allow" button above to enable your microphone.
+                </p>
+                <p id="info_denied" style="display:none">
+                    Permission to use microphone was denied.
+                </p>
+                <p id="info_blocked" style="display:none">
+                    Permission to use microphone is blocked. To change, go to
+                    chrome://settings/contentExceptions#media-stream
+                </p>
+                <p id="info_upgrade" style="display:none">
+                    Web Speech API is not supported by this browser. Upgrade to
+                </p>
+                </div>
+                <div id="div_start">
+                    <button id="start_button"
+                        class="card"
+                        onclick="startButton(event)">
+                        <img alt="Start" id="start_img"
+                src="image/mic.gif">
+                </button>
+                </div>
+                <div id="results">
+                <span class="final" id="final_span"></span> <span class="interim" id=
+                "interim_span"></span>
+                </div>
             </div>
         </div>
-        </div>
-     
-        <div>
-            <canvas width=100% height=70% id="glcanvas" style="background-color:black"></canvas>
-        </div>
-        <p id="message" style="font-weight:bold"></p>
+        <main>
+            <section class="canvas-wrapper">
+                <canvas width="600" height="400" id="glcanvas"></canvas>
+                <p id="message"></p>
+            </section>
+            <section class="map-wrapper">
+                <div id="map" tabindex="0"></div>
+                <div id="pac-container">
+                    <input id="pac-input" class="card"
+                     type="text" placeholder="Enter a location" >
+                </div>
+            </section>
+        </main>
+
         <script
         src="https://code.jquery.com/jquery-3.1.1.min.js"
         integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
