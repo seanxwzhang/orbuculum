@@ -77,42 +77,43 @@
                 <p id="info_start">
                     Tell me the place you wanna see...
                 </p>
-                <p id="info_speak_now" style="display:none">
+                <p id="info_speak_now" class="info-text">
                     Speak now.
                 </p>
-                <p id="info_no_speech" style="display:none">
+                <p id="info_no_speech" class="info-text">
                     No speech was detected. You may need to adjust your
                     settings</a>.
                 </p>
-                <p id="info_no_microphone" style="display:none">
+                <p id="info_no_microphone" class="info-text">
                     No microphone was found. Ensure that a microphone is installed and that
                     microphone settings</a> are configured correctly.
                 </p>
-                <p id="info_allow" style="display:none">
+                <p id="info_allow" class="info-text">
                     Click the "Allow" button above to enable your microphone.
                 </p>
-                <p id="info_denied" style="display:none">
+                <p id="info_denied" class="info-text">
                     Permission to use microphone was denied.
                 </p>
-                <p id="info_blocked" style="display:none">
+                <p id="info_blocked" class="info-text">
                     Permission to use microphone is blocked. To change, go to
                     chrome://settings/contentExceptions#media-stream
                 </p>
-                <p id="info_upgrade" style="display:none">
-                    Web Speech API is not supported by this browser. Upgrade to
+                <p id="info_upgrade" class="info-text">
+                    Web Speech API is not supported by this browser.
+                    Please consider latest Chrome.
                 </p>
                 </div>
-                <div id="div_start">
-                    <button id="start_button"
-                        class="card"
-                        onclick="startButton(event)">
-                        <img alt="Start" id="start_img"
-                src="image/mic.gif">
-                </button>
-                </div>
-                <div id="results">
-                <span class="final" id="final_span"></span> <span class="interim" id=
-                "interim_span"></span>
+                <div class="voice-wrapper">
+                    <div id="results" class="voice-text card">
+                        <span class="final" id="final_span"></span>
+                        <span class="interim" id="interim_span"></span>
+                    </div>
+                    <div id="div_start">
+                        <button id="start_button" class="card"
+                            onclick="startButton(event)">
+                            <img alt="Start" id="start_img" src="image/mic.gif">
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

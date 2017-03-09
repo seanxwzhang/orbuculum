@@ -47,6 +47,7 @@ main section {
   min-width: 300px;
   width: 600px;
   height: 400px;
+  outline: none;
 }
 #pac-container {
   position: absolute;
@@ -80,6 +81,27 @@ main section {
   background: #EEE;
   outline: none;
   border: none;
+}
+
+#info {
+  text-align: center;
+}
+.info-text {
+  display: none;
+}
+.voice-wrapper {
+  padding: 8px;
+  min-width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+#results {
+  font-size: 14px;
+  min-width: 200px;
+  height: 36px;
+  margin: 0 8px;
+  background: rgb(250, 250, 250);
 }
 
 .card {
