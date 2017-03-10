@@ -87,7 +87,7 @@ function draw() {
             gl.enableVertexAttribArray(smokeParticles[p].coords_loc);
             gl.enableVertexAttribArray(smokeParticles[p].texcoords_loc);
             mat4.fromRotationTranslationScale(smokeParticles[p].modelTransform, smokeParticles[p].randQ, smokeParticles[p].randV, smokeParticles[p].randS);
-            smokeParticles[p].render(projection, modelview, smokeParticles[p].modelTransform);
+            smokeParticles[p].render(projection, oldmodelview, smokeParticles[p].modelTransform);
             gl.disableVertexAttribArray(smokeParticles[p].coords_loc);
             gl.disableVertexAttribArray(smokeParticles[p].texcoords_loc);
         }
