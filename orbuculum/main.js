@@ -9,6 +9,11 @@ var skybox;// skybox object
 var prog; // orbuculum program
 var orbuculum; // orbuculum object
 
+var progSmoke; // smoke program
+var smokeParticles = []; // smokes
+var numParticles = 40;
+var delta = 0.01; //rotation delta
+
 var rotator; // rotator object
 
 var projection = mat4.create();
@@ -20,6 +25,17 @@ var oldmodelview = mat4.create();
 var lightPosition = vec3.fromValues(10,10,-10);
 
 var textures = {};
+
+function animate() {
+    draw();
+    requestAnimationFrame(animate);
+}
+
+function evolveSmoke() {
+    smokeParticles.map((particle) => {
+        quat.rotateZ(particle.randQ,particle.randQ,delta)
+    })
+}
 
 function draw() {
     gl.clearColor(0,0,0,1);
@@ -45,6 +61,7 @@ function draw() {
 		gl.disableVertexAttribArray(skybox.normal_loc);
     }
 
+
     // draw orbuculum
     if (textures.orbuculumTex && orbuculum) {
         gl.useProgram(prog);
@@ -58,6 +75,26 @@ function draw() {
         gl.disableVertexAttribArray(orbuculum.normal_loc);
     }
 
+      // draw smokes
+    if (textures.smokeTex && smokeParticles.length > 0) {
+        evolveSmoke();
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.enable(gl.BLEND);
+        gl.disable(gl.DEPTH_TEST);
+        gl.useProgram(progSmoke);
+        gl.bindTexture(gl.TEXTURE_2D, textures.smokeTex);
+        for (let p = 0; p < smokeParticles.length; p++) {
+            gl.enableVertexAttribArray(smokeParticles[p].coords_loc);
+            gl.enableVertexAttribArray(smokeParticles[p].texcoords_loc);
+            mat4.fromRotationTranslationScale(smokeParticles[p].modelTransform, smokeParticles[p].randQ, smokeParticles[p].randV, smokeParticles[p].randS);
+            smokeParticles[p].render(projection, modelview, smokeParticles[p].modelTransform);
+            gl.disableVertexAttribArray(smokeParticles[p].coords_loc);
+            gl.disableVertexAttribArray(smokeParticles[p].texcoords_loc);
+        }
+        gl.enable(gl.DEPTH_TEST);
+        gl.disable(gl.BLEND);
+    }
+
 }
 
 const inmemoryCanvases = [1,2,3,4,5,6]
@@ -68,7 +105,9 @@ const inmemoryCanvases = [1,2,3,4,5,6]
         canvas.width = 1; canvas.height = 1;
         return canvas;
     });
-function loadTextureCube(texID, urls) {
+
+
+function loadTexture(texID, urls) {
     Promise.all(urls.map((url, idx) => {
         return new Promise(resolve => {
             let img = new Image();
@@ -94,20 +133,32 @@ function loadTextureCube(texID, urls) {
         })
     })).then(imgs => {
         textures[texID] = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures[texID]);
-        var targets = [
+        if (texID != 'smokeTex') {
+            gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures[texID]);
+            var targets = [
             gl.TEXTURE_CUBE_MAP_POSITIVE_X, gl.TEXTURE_CUBE_MAP_NEGATIVE_X,
             gl.TEXTURE_CUBE_MAP_POSITIVE_Y, gl.TEXTURE_CUBE_MAP_NEGATIVE_Y,
             gl.TEXTURE_CUBE_MAP_POSITIVE_Z, gl.TEXTURE_CUBE_MAP_NEGATIVE_Z
-        ];
-        for (let j = 0; j < 6; j++) {
-            gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[j]);
-            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            ];
+            for (let j = 0; j < 6; j++) {
+                gl.texImage2D(targets[j], 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[j]);
+                gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            }
+            gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
+        } else {
+            gl.bindTexture(gl.TEXTURE_2D, textures[texID]);
+            gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+            // gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,new Uint8Array([0, 0, 255, 255]));
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[0]);
+            gl.generateMipmap(gl.TEXTURE_2D);
         }
-        gl.generateMipmap(gl.TEXTURE_CUBE_MAP);
         draw();
     });
 }
@@ -133,6 +184,10 @@ function init() {
         fshaderSource = getTextContent("fshader");
         prog = createProgram(gl, vshaderSource, fshaderSource);
 
+        vshaderSource = getTextContent("vGshader");
+        fshaderSource = getTextContent("fGshader");
+        progSmoke = createProgram(gl, vshaderSource, fshaderSource);
+
 		gl.enable(gl.DEPTH_TEST);
 		
         rotator = new SimpleRotator(canvas, draw);
@@ -149,6 +204,17 @@ function init() {
         orbuculum.link(gl, prog);
         orbuculum.upload(gl);
 
+        for (let p = 0; p < numParticles; p++) {
+            var particle = new Square(30, [0, 0.8667, 0.8667, 1.0]);
+            particle.randQ = quat.fromValues(0, 0, 1, Math.random() - 1);
+            quat.normalize(particle.randQ, particle.randQ);
+            particle.randV = vec3.fromValues(40*(Math.random()-1) + 20, 30*(Math.random()-1) - 10, 20*(Math.random()-1));
+            particle.randS = vec3.fromValues(1, 1, 1);
+            particle.modelTransform = mat4.create();
+            particle.link(gl, progSmoke)
+            particle.upload(gl);
+            smokeParticles.push(particle);
+        }
 
     }
     catch(e) {
@@ -160,21 +226,22 @@ function init() {
 // main function
 init();
 initMap();
-loadTextureCube('skyboxTex', [
+loadTexture('skyboxTex', [
     "image/strange/pos-x.png", "image/strange/neg-x.png",
     "image/strange/pos-y.png", "image/strange/neg-y.png",
     "image/strange/pos-z.png", "image/strange/neg-z.png"
     ]);
-loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
-
+loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+loadTexture('smokeTex', ["image/Smoke-Element.png"]);
+animate();
 /* $(document).keydown(function(e){
     moveLocation(e);
-    loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+    loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 }) */
 
 /* mapDiv.addEventListener('keydown',function(e){
 	moveLocation(e);
-    loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+    loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 }); */
 
 $(document).keydown(function(e){
@@ -184,5 +251,5 @@ $(document).keydown(function(e){
 });
 
 mapDiv.addEventListener('imgready',function(){
-	loadTextureCube('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
+	loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 });

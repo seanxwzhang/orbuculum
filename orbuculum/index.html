@@ -101,6 +101,44 @@
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
+    <script type="x-shader/x-vertex" id="vGshader"> //Gouraud shading model, assume uniform light
+    precision mediump float;
+    attribute vec3 coords;
+    attribute vec2 texcoords;
+    varying vec2 fTexCoord;
+    varying vec4 VERTEX_COLOR;
+    uniform mat4 projection;
+    uniform mat4 modelview;
+    uniform mat4 modelTrans;
+    uniform vec4 shapeColor;
+    uniform float ambient;
+
+    void main() {
+        vec4 eyeCoords = modelview * modelTrans * vec4(coords, 1.0);
+        gl_Position = projection * eyeCoords;
+        fTexCoord = texcoords;
+        
+        VERTEX_COLOR = vec4(shapeColor.xyz * ambient, shapeColor.w);
+    }
+    </script>
+    <script type="x-shader/x-fragment" id="fGshader">
+    precision mediump float;
+
+    uniform sampler2D texture;
+    uniform vec4 shapeColor;
+    uniform float beta;
+
+    varying vec4 VERTEX_COLOR;
+    varying vec2 fTexCoord;
+    
+    void main() {
+        vec4 tex_color = texture2D(texture, fTexCoord);
+        // gl_FragColor = tex_color;
+        gl_FragColor = vec4(VERTEX_COLOR.rgb, tex_color.a * 0.5);
+        // gl_FragColor = beta * VERTEX_COLOR + (1.0 - beta) * tex_color;
+    }
+
+    </script>
 	
     <link rel="stylesheet" type="text/css" href="style.css">
     </head>

@@ -164,7 +164,6 @@ class Cube extends Shape {
 	link(gl, program) {
         super.link(gl, program);
         this.normal_loc = gl.getAttribLocation(program, "normal");
-	
 	}
 	
 	upload(gl) {
@@ -187,4 +186,53 @@ class Cube extends Shape {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements( gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0 );
     }
+}
+
+class Square extends Shape {
+    constructor(sidelength, shapecolor) {
+        super();
+        var a = sidelength / 2;
+        this.vertices.push([-a, -a, 0]);
+        this.vertices.push([a, -a, 0]);
+        this.vertices.push([a, a, 0]);
+        this.vertices.push([-a, a, 0]);
+        this.texCoords.push([0.0, 0.0]);
+        this.texCoords.push([1.0, 0.0]);
+        this.texCoords.push([1.0, 1.0]);
+        this.texCoords.push([0.0, 1.0]);
+        this.indices = [0, 1, 2, 0, 3, 2];
+        this.shapecolor = shapecolor;
+        this.beta = 0.5;
+        this.ambient = 0.3;
+    }
+    link(gl, program) {
+        super.link(gl, program);
+        this.texcoords_loc = gl.getAttribLocation(program, "texcoords");
+        this.shapecolor_loc = gl.getUniformLocation(program, 'shapeColor');
+        this.beta_loc = gl.getUniformLocation(program, 'beta');
+        this.ambient_loc = gl.getUniformLocation(program, 'ambient');
+        this.modelTrans_loc = gl.getUniformLocation(program, 'modelTrans');
+    }
+    upload(gl) {
+        super.upload(gl);
+        this.texcoordsBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordsBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(flatten(this.texCoords)), gl.STATIC_DRAW);
+        this.copy_to_GPU = true;
+    }
+    render(projection, modelview, modelTrans) {
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
+        gl.vertexAttribPointer(this.coords_loc, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, this.texcoordsBuffer);
+        gl.vertexAttribPointer(this.texcoords_loc, 2, gl.FLOAT, false, 0, 0);
+        gl.uniformMatrix4fv(this.projection_loc, false, projection);
+        gl.uniformMatrix4fv(this.modelview_loc, false, modelview);
+        gl.uniformMatrix4fv(this.modelTrans_loc, false, modelTrans);
+        gl.uniform4fv(this.shapecolor_loc, this.shapecolor);
+        gl.uniform1f(this.beta_loc, this.beta);
+        gl.uniform1f(this.ambient_loc, this.ambient);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+        gl.drawElements( gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0 );
+    }
+    
 }
