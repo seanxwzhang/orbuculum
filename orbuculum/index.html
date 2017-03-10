@@ -33,13 +33,13 @@
         uniform samplerCube skybox;
 		uniform vec3 lightPosition;
         void main() {
-			
+
  			vec3 toLightNormal = normalize(lightPosition - viewCoords);
 			vec3 N = normalize(-vNormal);
 			float lightIntensity = 0.3 + 0.8 * max(dot(N, toLightNormal), 0.0);
 			vec4 cubetex = textureCube(skybox, vcoords);
-			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a); 
-			
+			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+
 			//gl_FragColor = vec4(vec3(0.5,0.5,0.5) * lightIntensity, 1.0);
             //gl_FragColor = textureCube(skybox, vcoords);
 			//gl_FragColor = vec4(0.5,0.5,0.5,1.0);
@@ -79,15 +79,15 @@
             // gl_FragColor = textureCube(skybox, R);
 
 			vec3 toLightNormal = normalize(lightPosition - viewCoords);
-			
+
             //vec3 N = normalize(normalMV * vNormal);
 			vec3 N = normalize(vNormal);
             vec3 V = -viewCoords;
 			vec3 norV = normalize(V);
             //vec3 R = -reflect(V,N);
-			vec3 R = reflect(-norV,N);
+			vec3 R = 2*reflect(-norV,N);
 			vec3 norR = normalize(R);
-			
+
 			vec3 Half = normalize( toLightNormal + norV );
             vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
 			float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
@@ -117,7 +117,7 @@
         vec4 eyeCoords = modelview * modelTrans * vec4(coords, 1.0);
         gl_Position = projection * eyeCoords;
         fTexCoord = texcoords;
-        
+
         VERTEX_COLOR = vec4(shapeColor.xyz * ambient, shapeColor.w);
     }
     </script>
@@ -130,7 +130,7 @@
 
     varying vec4 VERTEX_COLOR;
     varying vec2 fTexCoord;
-    
+
     void main() {
         vec4 tex_color = texture2D(texture, fTexCoord);
         // gl_FragColor = tex_color;
@@ -139,7 +139,7 @@
     }
 
     </script>
-	
+
     <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
