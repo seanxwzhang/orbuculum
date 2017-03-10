@@ -11,8 +11,8 @@ var orbuculum; // orbuculum object
 
 var progSmoke; // smoke program
 var smokeParticles = []; // smokes
-var numParticles = 40;
-var delta = 0.01; //rotation delta
+var numParticles = 150;
+var delta = 0.003; //rotation delta
 
 var rotator; // rotator object
 
@@ -33,7 +33,7 @@ function animate() {
 
 function evolveSmoke() {
     smokeParticles.map((particle) => {
-        quat.rotateZ(particle.randQ,particle.randQ,delta)
+        quat.rotateZ(particle.randQ,particle.randQ,delta * Math.random());
     })
 }
 
@@ -205,7 +205,7 @@ function init() {
         orbuculum.upload(gl);
 
         for (let p = 0; p < numParticles; p++) {
-            var particle = new Square(30, [0, 0.8667, 0.8667, 1.0]);
+            var particle = new Square(30, [0.1, 0.4, 0.8, 1.0]);
             particle.randQ = quat.fromValues(0, 0, 1, Math.random() - 1);
             quat.normalize(particle.randQ, particle.randQ);
             particle.randV = vec3.fromValues(40*(Math.random()-1) + 20, 30*(Math.random()-1) - 10, 20*(Math.random()-1));

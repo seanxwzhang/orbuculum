@@ -134,7 +134,7 @@
     void main() {
         vec4 tex_color = texture2D(texture, fTexCoord);
         // gl_FragColor = tex_color;
-        gl_FragColor = vec4(VERTEX_COLOR.rgb, tex_color.a * 0.5);
+        gl_FragColor = vec4(VERTEX_COLOR.rgb, tex_color.a * beta);
         // gl_FragColor = beta * VERTEX_COLOR + (1.0 - beta) * tex_color;
     }
 
