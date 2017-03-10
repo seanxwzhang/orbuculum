@@ -85,7 +85,7 @@
             vec3 V = -viewCoords;
 			vec3 norV = normalize(V);
             //vec3 R = -reflect(V,N);
-			vec3 R = 2*reflect(-norV,N);
+			vec3 R = reflect(-norV,N);
 			vec3 norR = normalize(R);
 
 			vec3 Half = normalize( toLightNormal + norV );
