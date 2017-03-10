@@ -39,7 +39,7 @@ function evolveSmoke() {
 
 function draw() {
     gl.clearColor(0,0,0,1);
-	
+
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     mat4.perspective(projection, Math.PI/3, canvas.width/canvas.height, 10, 2000);
@@ -97,15 +97,6 @@ function draw() {
 
 }
 
-const inmemoryCanvases = [1,2,3,4,5,6]
-    .map(id => `inmemoryCanvas${id}`)
-    .map(id => {
-        const canvas = document.createElement('canvas');
-        canvas.setAttribute('id', id);
-        canvas.width = 1; canvas.height = 1;
-        return canvas;
-    });
-
 
 function loadTexture(texID, urls) {
     Promise.all(urls.map((url, idx) => {
@@ -116,21 +107,7 @@ function loadTexture(texID, urls) {
                 resolve(img);
             }
             img.src = url;
-        }).then(img => {
-            if (texID === 'orbuculumTex') {
-                return new Promise(resolve => {
-                    const blurRadius = 0;
-                    stackBlurImage(img, inmemoryCanvases[idx], blurRadius, false);
-                    const bluredImg = new Image();
-                    bluredImg.onload = function() {
-                        resolve(bluredImg);
-                    }
-                    bluredImg.src = inmemoryCanvases[idx].toDataURL();
-                })
-            } else {
-                return img;
-            }
-        })
+        });
     })).then(imgs => {
         textures[texID] = gl.createTexture();
         if (texID != 'smokeTex') {
@@ -189,13 +166,13 @@ function init() {
         progSmoke = createProgram(gl, vshaderSource, fshaderSource);
 
 		gl.enable(gl.DEPTH_TEST);
-		
+
         rotator = new SimpleRotator(canvas, draw);
         rotator.setView([0,0,1], [0,1,0], 20);
-		
+
 		oldmodelview = rotator.getViewMatrix();
-		
-		
+
+
         skybox = new Cube(25);
         orbuculum = new Sphere(7);
 
