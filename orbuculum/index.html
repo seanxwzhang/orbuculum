@@ -40,7 +40,7 @@
 			vec4 cubetex = textureCube(skybox, vcoords);
 			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a); 
 			
-			//gl_FragColor = vec4(vec3(0.5,0.5,0.5) * lightIntensity, 1.0);
+			//gl_FragColor = vec4(vec3(1.0,1.0,1.0) * lightIntensity, 1.0);
             //gl_FragColor = textureCube(skybox, vcoords);
 			//gl_FragColor = vec4(0.5,0.5,0.5,1.0);
         }
@@ -101,6 +101,107 @@
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
+	<!-- Shaders wit shadow mapping for Skybox -->
+	<script type="x-shader/x-vertex" id="vshaderBoxShadow">
+        uniform mat4 projection;
+        uniform mat4 modelview;
+        attribute vec3 coords;
+		attribute vec3 normal;
+        varying vec3 vcoords;
+		varying vec3 vNormal;
+		varying vec3 viewCoords;
+        void main() {
+            vec4 eyeCoords = modelview * vec4(coords, 1.0);
+            gl_Position = projection * eyeCoords;
+            vcoords = coords;// normalized already
+			viewCoords = vec3(eyeCoords);
+			//vNormal = vec3(modelview * vec4(normal,0.0));
+			vNormal = normal;
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fshaderBoxShadow">
+        precision mediump float;
+        varying vec3 vcoords;
+		varying vec3 vNormal;
+		varying vec3 viewCoords;
+        uniform samplerCube skybox;
+		uniform vec3 lightPosition;
+		uniform samplerCube lightShadowMap;
+		uniform vec2 shadowClipNearFar;
+		
+        void main() {
+			
+ 			vec3 toLightNormal = normalize(lightPosition - vcoords);
+			//float fromLightToFrag =
+				//(length(viewCoords - lightPosition) - shadowClipNearFar.x)
+				///
+				//(shadowClipNearFar.y - shadowClipNearFar.x);
+			vec3 WlightPosition = vec3(lightPosition.xy,(lightPosition.z+20.0)); 	
+				
+			float fromLightToFrag =
+				(length(vcoords - lightPosition) - shadowClipNearFar.x)
+				/
+				(shadowClipNearFar.y - shadowClipNearFar.x);	
+
+			vec3 WtoLightNormal = normalize(WlightPosition-vcoords);
+			
+			float shadowMapValue = textureCube(lightShadowMap, -toLightNormal).r;
+			vec3 N = normalize(-vNormal);
+			float lightIntensity = 0.3;
+			if ((shadowMapValue + 0.1) >= fromLightToFrag) {
+					lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
+			}			
+			
+			vec4 cubetex = textureCube(skybox, vcoords);
+			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a); 
+			
+			//gl_FragColor = vec4(vec3(1.0,1.0,1.0) * lightIntensity, 1.0);
+            //gl_FragColor = textureCube(lightShadowMap, -WtoLightNormal);
+			//gl_FragColor = vec4(fromLightToFrag,fromLightToFrag,fromLightToFrag,1.0);
+        }
+    </script>
+	
+	<script type="x-shader/x-vertex" id="vshaderBoxShadowGen">
+		precision mediump float;
+
+		uniform mat4 projection;
+		uniform mat4 modelview;
+		
+
+		attribute vec3 coords;
+
+		varying vec3 vcoords;
+
+		void main()
+		{
+			//vcoords = vec3(modelview * vec4(coords, 1.0));
+			vcoords = coords;
+
+			gl_Position = projection * modelview * vec4(coords, 1.0);
+		}
+	</script>
+
+	<script type="x-shader/x-fragment" id="fshaderBoxShadowGen">
+		precision mediump float;
+
+		uniform vec3 lightPosition;
+		uniform vec2 shadowClipNearFar;
+
+		varying vec3 vcoords;
+
+		void main()
+		{
+			vec3 fromLightToFrag = (vcoords - lightPosition);
+			//vec3 fromLightToFrag = (vcoords - vec3(lightPosition.xy,(lightPosition.z+20.0)));
+			
+			float lightFragDist =
+				(length(fromLightToFrag) - shadowClipNearFar.x)
+				/
+				(shadowClipNearFar.y - shadowClipNearFar.x);
+
+			gl_FragColor = vec4(lightFragDist, lightFragDist, lightFragDist, 1.0);
+		}
+	</script>
 	
     <link rel="stylesheet" type="text/css" href="style.css">
     </head>
