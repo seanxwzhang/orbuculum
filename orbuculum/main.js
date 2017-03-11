@@ -67,6 +67,7 @@ function draw() {
         gl.useProgram(prog);
 		gl.uniform3fv(gl.getUniformLocation(prog,"lightPosition"),lightPosition);
 		gl.uniform1f(gl.getUniformLocation(prog,"shininess"),50);
+		gl.uniform1i(gl.getUniformLocation(prog,"blurLen"),5);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.orbuculumTex);
         gl.enableVertexAttribArray(orbuculum.coords_loc);
         gl.enableVertexAttribArray(orbuculum.normal_loc);

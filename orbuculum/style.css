@@ -41,9 +41,11 @@ main section {
 }
 
 #message {
+  padding: 10px;
   position: absolute;
   left: 0;
-  bottom: -150px;
+  top: 0;
+  color: white;
 }
 #map {
   min-height: 300px;
