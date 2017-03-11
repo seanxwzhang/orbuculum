@@ -48,24 +48,25 @@ var textures = {};
 var lasttime;
 
 var startBlur = false;
-var blurLen = 1;
-var prev;
+var maxSigma = 2.0, minSigma = 0.3;
+var sigma = minSigma;
+var change = minSigma - maxSigma;
+var duration = 500;  // duration controls the total blur elapse time!
+var start;
+function easingfunc(t, b, c, d) {
+    return c*(t/=d)*t + b;
+}
 function animate(now) {
     if (startBlur) {
-        blurLen = 9;
-        prev = now;
+        start = now;
+        sigma = maxSigma;
         startBlur = false;
     }
-    if (blurLen > 1) {
-        draw(blurLen);
-        if (now - prev > 200) {
-            console.log(now);
-            blurLen -= 2;
-            prev = now;
-        }
-    } else {
-        draw();
+    if (sigma > minSigma) {
+        var t = now - start;
+        sigma = easingfunc(t, maxSigma, change, duration);
     }
+    draw();
     requestAnimationFrame(animate);
 }
 
@@ -78,7 +79,7 @@ function evolveSmoke() {
     })
 }
 
-function draw(blurLen = 1) {
+function draw() {
     gl.clearColor(0,0,0,1);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -128,7 +129,7 @@ function draw(blurLen = 1) {
         gl.useProgram(prog);
         gl.uniform3fv(gl.getUniformLocation(prog,"lightPosition"),lightPosition);
         gl.uniform1f(gl.getUniformLocation(prog,"shininess"),50);
-        gl.uniform1i(gl.getUniformLocation(prog,"blurLen"),blurLen);
+        gl.uniform1f(gl.getUniformLocation(prog,"sigma"),sigma);
         gl.uniform1i(gl.getUniformLocation(prog,"skybox"), 0);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.orbuculumTex);

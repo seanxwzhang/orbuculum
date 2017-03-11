@@ -70,25 +70,21 @@
         uniform mat3 invMV;
         uniform vec3 lightPosition;
         uniform float shininess;
-        uniform int blurLen;
-        // kernel
-        float kernel[13];
+        // blur related
+        uniform float sigma;
+        float kernel[5];
+
+        float normpdf(in float x, in float sigma) {
+            return 0.39894*exp(-0.5 * x*x / (sigma*sigma)) / sigma;
+        }
 
         void main() {
-            // vec3 N = normalMV * vNormal;
-            // vec3 V = -viewCoords;
-            // vec3 R = V - 2.0 * dot(V,N) * N;
-            // R = invMV * R; // transform it back to model coordinates
-            // R = normalize(R);
-            // gl_FragColor = textureCube(skybox, R);
 
             vec3 toLightNormal = normalize(lightPosition - viewCoords);
 
-            //vec3 N = normalize(normalMV * vNormal);
             vec3 N = normalize(vNormal);
             vec3 V = -viewCoords;
             vec3 norV = normalize(V);
-            //vec3 R = -reflect(V,N);
             vec3 R = reflect(-norV,N);
             vec3 norR = normalize(R);
 
@@ -99,43 +95,33 @@
             float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0);
             vec4 cubetex = vec4(0.0);
             // do blur if required
-            if (blurLen > 1) {
+            if (sigma > 0.3) {
                 // prepare stuff
+                int blurLen = 5;
                 vec3 v1 = vec3(0.03)*normalize(cross(T, vec3(0.0,0.0,1.0)));
                 vec3 v2 = vec3(0.03)*normalize(cross(T, v1));
                 int halfcnt = (blurLen - 1) / 2;
-                if (blurLen == 3) {
-                    kernel[0] = kernel[2] = .308758;
-                    kernel[1] = .382483;
-                } else if (blurLen == 5) {
-                    kernel[0] = kernel[4] = .122581;
-                    kernel[1] = kernel[3] = .233062;
-                    kernel[2] = .288713;
-                } else if (blurLen == 7) {
-                    kernel[0] = kernel[6] = .038735;
-                    kernel[1] = kernel[5] = .113085;
-                    kernel[2] = kernel[4] = .215007;
-                    kernel[3] = .266346;
-                } else if (blurLen == 9) {
-                    kernel[0] = kernel[8] = .008488;
-                    kernel[1] = kernel[7] = .038078;
-                    kernel[2] = kernel[6] = .111165;
-                    kernel[3] = kernel[5] = .211357;
-                    kernel[4] = .261824;
+
+                //create the kernel
+                float Z = 0.0;
+                for (int j = 0; j <= 2; ++j) {
+                    float value = normpdf(float(2-j), sigma);
+                    kernel[j] = kernel[4-j] = value;
+                    Z += 2.0 * value; if (j == 2) Z -= value;
                 }
+
                 // do the convolution
-                for (int i = 0; i <= 13; i++) {
-                    if (i >= blurLen-1) break;
+                for (int i = 0; i < 4; i++) {
                     float s1 = float(i - halfcnt);
                     vec3 off1 = vec3(s1) * v1;
                     vec3 base = T + off1;
-                    for (int j = 0; j <= 13; j++) {
-                        if (j >= blurLen-1) break;
+                    for (int j = 0; j < 4; j++) {
                         float s2 = float(j - halfcnt);
                         vec3 off2 = vec3(s2) * v2;
                         cubetex += kernel[j]*kernel[i] * textureCube(skybox, base + off2);
                     }
                 }
+                cubetex = vec4(cubetex.xyz/(Z*Z), 1.0);
             } else {
                 cubetex = textureCube(skybox, T);
             }
@@ -185,107 +171,107 @@
 
     </script>
 
-	<!-- Shaders wit shadow mapping for Skybox -->
-	<script type="x-shader/x-vertex" id="vshaderBoxShadow">
+    <!-- Shaders wit shadow mapping for Skybox -->
+    <script type="x-shader/x-vertex" id="vshaderBoxShadow">
         uniform mat4 projection;
         uniform mat4 modelview;
         attribute vec3 coords;
-		attribute vec3 normal;
+        attribute vec3 normal;
         varying vec3 vcoords;
-		varying vec3 vNormal;
-		varying vec3 viewCoords;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
         void main() {
             vec4 eyeCoords = modelview * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
             vcoords = coords;// normalized already
-			viewCoords = vec3(eyeCoords);
-			//vNormal = vec3(modelview * vec4(normal,0.0));
-			vNormal = normal;
+            viewCoords = vec3(eyeCoords);
+            //vNormal = vec3(modelview * vec4(normal,0.0));
+            vNormal = normal;
         }
     </script>
     <script type="x-shader/x-fragment" id="fshaderBoxShadow">
         precision mediump float;
         varying vec3 vcoords;
-		varying vec3 vNormal;
-		varying vec3 viewCoords;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
         uniform samplerCube skybox;
-		uniform vec3 lightPosition;
-		uniform samplerCube lightShadowMap;
-		uniform vec2 shadowClipNearFar;
+        uniform vec3 lightPosition;
+        uniform samplerCube lightShadowMap;
+        uniform vec2 shadowClipNearFar;
 
         void main() {
 
- 			vec3 toLightNormal = normalize(lightPosition - vcoords);
-			//float fromLightToFrag =
-				//(length(viewCoords - lightPosition) - shadowClipNearFar.x)
-				///
-				//(shadowClipNearFar.y - shadowClipNearFar.x);
-			vec3 WlightPosition = vec3(lightPosition.xy,(lightPosition.z+20.0));
+             vec3 toLightNormal = normalize(lightPosition - vcoords);
+            //float fromLightToFrag =
+                //(length(viewCoords - lightPosition) - shadowClipNearFar.x)
+                ///
+                //(shadowClipNearFar.y - shadowClipNearFar.x);
+            vec3 WlightPosition = vec3(lightPosition.xy,(lightPosition.z+20.0));
 
-			float fromLightToFrag =
-				(length(vcoords - lightPosition) - shadowClipNearFar.x)
-				/
-				(shadowClipNearFar.y - shadowClipNearFar.x);
+            float fromLightToFrag =
+                (length(vcoords - lightPosition) - shadowClipNearFar.x)
+                /
+                (shadowClipNearFar.y - shadowClipNearFar.x);
 
-			vec3 WtoLightNormal = normalize(WlightPosition-vcoords);
+            vec3 WtoLightNormal = normalize(WlightPosition-vcoords);
 
-			float shadowMapValue = textureCube(lightShadowMap, -toLightNormal).r;
-			vec3 N = normalize(-vNormal);
-			float lightIntensity = 0.3;
-			if ((shadowMapValue + 0.1) >= fromLightToFrag) {
-					lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
-			}
+            float shadowMapValue = textureCube(lightShadowMap, -toLightNormal).r;
+            vec3 N = normalize(-vNormal);
+            float lightIntensity = 0.3;
+            if ((shadowMapValue + 0.1) >= fromLightToFrag) {
+                    lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
+            }
 
-			vec4 cubetex = textureCube(skybox, vcoords);
-			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+            vec4 cubetex = textureCube(skybox, vcoords);
+            gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
 
-			//gl_FragColor = vec4(vec3(1.0,1.0,1.0) * lightIntensity, 1.0);
+            //gl_FragColor = vec4(vec3(1.0,1.0,1.0) * lightIntensity, 1.0);
             //gl_FragColor = textureCube(lightShadowMap, -WtoLightNormal);
-			//gl_FragColor = vec4(fromLightToFrag,fromLightToFrag,fromLightToFrag,1.0);
+            //gl_FragColor = vec4(fromLightToFrag,fromLightToFrag,fromLightToFrag,1.0);
         }
     </script>
 
-	<script type="x-shader/x-vertex" id="vshaderBoxShadowGen">
-		precision mediump float;
+    <script type="x-shader/x-vertex" id="vshaderBoxShadowGen">
+        precision mediump float;
 
-		uniform mat4 projection;
-		uniform mat4 modelview;
+        uniform mat4 projection;
+        uniform mat4 modelview;
 
 
-		attribute vec3 coords;
+        attribute vec3 coords;
 
-		varying vec3 vcoords;
+        varying vec3 vcoords;
 
-		void main()
-		{
-			//vcoords = vec3(modelview * vec4(coords, 1.0));
-			vcoords = coords;
+        void main()
+        {
+            //vcoords = vec3(modelview * vec4(coords, 1.0));
+            vcoords = coords;
 
-			gl_Position = projection * modelview * vec4(coords, 1.0);
-		}
-	</script>
+            gl_Position = projection * modelview * vec4(coords, 1.0);
+        }
+    </script>
 
-	<script type="x-shader/x-fragment" id="fshaderBoxShadowGen">
-		precision mediump float;
+    <script type="x-shader/x-fragment" id="fshaderBoxShadowGen">
+        precision mediump float;
 
-		uniform vec3 lightPosition;
-		uniform vec2 shadowClipNearFar;
+        uniform vec3 lightPosition;
+        uniform vec2 shadowClipNearFar;
 
-		varying vec3 vcoords;
+        varying vec3 vcoords;
 
-		void main()
-		{
-			vec3 fromLightToFrag = (vcoords - lightPosition);
-			//vec3 fromLightToFrag = (vcoords - vec3(lightPosition.xy,(lightPosition.z+20.0)));
+        void main()
+        {
+            vec3 fromLightToFrag = (vcoords - lightPosition);
+            //vec3 fromLightToFrag = (vcoords - vec3(lightPosition.xy,(lightPosition.z+20.0)));
 
-			float lightFragDist =
-				(length(fromLightToFrag) - shadowClipNearFar.x)
-				/
-				(shadowClipNearFar.y - shadowClipNearFar.x);
+            float lightFragDist =
+                (length(fromLightToFrag) - shadowClipNearFar.x)
+                /
+                (shadowClipNearFar.y - shadowClipNearFar.x);
 
-			gl_FragColor = vec4(lightFragDist, lightFragDist, lightFragDist, 1.0);
-		}
-	</script>
+            gl_FragColor = vec4(lightFragDist, lightFragDist, lightFragDist, 1.0);
+        }
+    </script>
 
     <link rel="stylesheet" type="text/css" href="style.css">
     </head>
