@@ -251,39 +251,10 @@
     <link rel="stylesheet" type="text/css" href="style.css">
     </head>
     <body>
-        <h1>Orbuculum <span id="not_really">not really, more like "mirror ball"</span></h1>
+        <h1>Orbuculum</h1>
+        <span class="subtitle">not really, more like "mirror ball"</span>
         <div class="browser-landing" id="main">
             <div class="compact marquee">
-                <div id="info">
-                <p id="info_start">
-                    Tell me the place you wanna see...
-                </p>
-                <p id="info_speak_now" class="info-text">
-                    Speak now.
-                </p>
-                <p id="info_no_speech" class="info-text">
-                    No speech was detected. You may need to adjust your
-                    settings</a>.
-                </p>
-                <p id="info_no_microphone" class="info-text">
-                    No microphone was found. Ensure that a microphone is installed and that
-                    microphone settings</a> are configured correctly.
-                </p>
-                <p id="info_allow" class="info-text">
-                    Click the "Allow" button above to enable your microphone.
-                </p>
-                <p id="info_denied" class="info-text">
-                    Permission to use microphone was denied.
-                </p>
-                <p id="info_blocked" class="info-text">
-                    Permission to use microphone is blocked. To change, go to
-                    chrome://settings/contentExceptions#media-stream
-                </p>
-                <p id="info_upgrade" class="info-text">
-                    Web Speech API is not supported by this browser.
-                    Please consider latest Chrome.
-                </p>
-                </div>
                 <div class="voice-wrapper">
                     <div id="results" class="voice-text card">
                         <span class="final" id="final_span"></span>
@@ -295,6 +266,37 @@
                             <img alt="Start" id="start_img" src="image/mic.gif">
                         </button>
                     </div>
+                </div>
+                <div id="info">
+                    <p id="info_start">
+                        Tell <em>Orbuculum</em> the place you wanna see ...
+                        and click <em>wsad</em> to walk the map : )
+                    </p>
+                    <p id="info_speak_now" class="info-text">
+                        Speak now.
+                    </p>
+                    <p id="info_no_speech" class="info-text">
+                        No speech was detected. You may need to adjust your
+                        settings</a>.
+                    </p>
+                    <p id="info_no_microphone" class="info-text">
+                        No microphone was found. Ensure that a microphone is installed and that
+                        microphone settings</a> are configured correctly.
+                    </p>
+                    <p id="info_allow" class="info-text">
+                        Click the "Allow" button above to enable your microphone.
+                    </p>
+                    <p id="info_denied" class="info-text">
+                        Permission to use microphone was denied.
+                    </p>
+                    <p id="info_blocked" class="info-text">
+                        Permission to use microphone is blocked. To change, go to
+                        chrome://settings/contentExceptions#media-stream
+                    </p>
+                    <p id="info_upgrade" class="info-text">
+                        Web Speech API is not supported by this browser.
+                        Please consider latest Chrome.
+                    </p>
                 </div>
             </div>
         </div>
@@ -312,17 +314,15 @@
             </section>
         </main>
 
-        <script
-        src="https://code.jquery.com/jquery-3.1.1.min.js"
-        integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-        crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"
+                integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+                crossorigin="anonymous"></script>
         <script type="text/javascript" src="lib/webgl-debug.js"></script>
         <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
         <script type="text/javascript" src="lib/objects.js"></script>
         <script type="text/javascript" src="lib/utils.js"></script>
         <script type="text/javascript" src="lib/simple-rotator.js"></script>
         <script type="text/javascript" src="lib/retrieve-img.js"></script>
-        <script type="text/javascript" src="lib/StackBlur.js"></script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCSIanF_npOtptuVIacA2WBfJ3dADCJDM&libraries=places"></script>
         <script type="text/javascript" src="main.js"></script>
         <script src="lib/voice.js"></script>
