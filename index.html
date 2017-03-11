@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Orbuculum</title>
+    <!-- This index.html file contains two shader programs that renders the crystall ball based on environment map generated from Google Streetveiw API
+
+    Reference: http://math.hws.edu/eck/cs424/notes2013/webgl/skybox-and-reflection/skybox-and-env-map.html
+
+    -->
+    <!-- Shaders for SkyBox -->
+    <script type="x-shader/x-vertex" id="vshaderBox">
+        uniform mat4 projection;
+        uniform mat4 modelview;
+        attribute vec3 coords;
+        attribute vec3 normal;
+        varying vec3 vcoords;
+        varying vec3 viewCoords;
+        varying vec3 vNormal;
+        void main() {
+            vec4 eyeCoords = modelview * vec4(coords, 1.0);
+            gl_Position = projection * eyeCoords;
+            vcoords = coords;  // normalized already
+            viewCoords = vec3(eyeCoords);
+            vNormal = vec3(modelview * vec4(normal,0.0));
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fshaderBox">
+        precision mediump float;
+        varying vec3 vcoords;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
+        uniform samplerCube skybox;
+        uniform vec3 lightPosition;
+        void main() {
+            vec3 toLightNormal = normalize(lightPosition - viewCoords);
+            vec3 N = normalize(-vNormal);
+            float lightIntensity = 0.3 + 0.8 * max(dot(N, toLightNormal), 0.0);
+            vec4 cubetex = textureCube(skybox, vcoords);
+            gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+        }
+    </script>
+    <!-- Shaders for Ball -->
+    <script type="x-shader/x-vertex" id="vshader">
+        uniform mat4 projection;
+        uniform mat4 modelview;
+        attribute vec3 coords;
+        attribute vec3 normal;
+        varying vec3 viewCoords;
+        varying vec3 vNormal;
+        void main() {
+            vec4 eyeCoords = modelview * vec4(coords, 1.0);
+            gl_Position = projection * eyeCoords;
+            viewCoords = eyeCoords.xyz;
+            //vNormal = normal;
+            vNormal = vec3(modelview * vec4(normal,0.0));
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fshader">
+        precision mediump float;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
+        uniform samplerCube skybox;
+        uniform mat3 normalMV; // normal matrix of modelview matrix
+        uniform mat3 invMV;
+        uniform vec3 lightPosition;
+        uniform float shininess;
+        // blur related
+        uniform float sigma;
+        float kernel[5];
+
+        float normpdf(in float x, in float sigma) {
+            return 0.39894*exp(-0.5 * x*x / (sigma*sigma)) / sigma;
+        }
+
+        void main() {
+            vec3 toLightNormal = normalize(lightPosition - viewCoords);
+
+            vec3 N = normalize(vNormal);
+            vec3 V = -viewCoords;
+            vec3 norV = normalize(V);
+            vec3 R = reflect(-norV,N);
+            vec3 norR = normalize(R);
+
+            vec3 Half = normalize( toLightNormal + norV );
+            vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
+            float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
+            if(dot(N, toLightNormal) < 0.0)spec=0.0;
+            float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0);
+            vec4 cubetex = vec4(0.0);
+            // do blur if required
+            if (sigma > 0.3) {
+                // prepare stuff
+                int blurLen = 5;
+                vec3 v1 = vec3(0.03)*normalize(cross(T, vec3(0.0,0.0,1.0)));
+                vec3 v2 = vec3(0.03)*normalize(cross(T, v1));
+                int halfcnt = (blurLen - 1) / 2;
+
+                //create the kernel
+                float Z = 0.0;
+                for (int j = 0; j <= 2; ++j) {
+                    float value = normpdf(float(2-j), sigma);
+                    kernel[j] = kernel[4-j] = value;
+                    Z += 2.0 * value; if (j == 2) Z -= value;
+                }
+
+                // do the convolution
+                for (int i = 0; i < 4; i++) {
+                    float s1 = float(i - halfcnt);
+                    vec3 off1 = vec3(s1) * v1;
+                    vec3 base = T + off1;
+                    for (int j = 0; j < 4; j++) {
+                        float s2 = float(j - halfcnt);
+                        vec3 off2 = vec3(s2) * v2;
+                        cubetex += kernel[j]*kernel[i] * textureCube(skybox, base + off2);
+                    }
+                }
+                cubetex = vec4(cubetex.xyz/(Z*Z), 1.0);
+            } else {
+                cubetex = textureCube(skybox, T);
+            }
+            gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+        }
+    </script>
+    <script type="x-shader/x-vertex" id="vGshader">
+    //Gouraud shading model, assume uniform light
+    precision mediump float;
+    attribute vec3 coords;
+    attribute vec2 texcoords;
+    varying vec2 fTexCoord;
+    varying vec4 VERTEX_COLOR;
+    uniform mat4 projection;
+    uniform mat4 modelview;
+    uniform mat4 modelTrans;
+    uniform vec4 shapeColor;
+    uniform float ambient;
+
+    void main() {
+        vec4 eyeCoords = modelview * modelTrans * vec4(coords, 1.0);
+        gl_Position = projection * eyeCoords;
+        fTexCoord = texcoords;
+
+        VERTEX_COLOR = vec4(shapeColor.xyz * ambient, shapeColor.w);
+    }
+    </script>
+    <script type="x-shader/x-fragment" id="fGshader">
+    precision mediump float;
+
+    uniform sampler2D texture;
+    uniform vec4 shapeColor;
+    uniform float beta;
+
+    varying vec4 VERTEX_COLOR;
+    varying vec2 fTexCoord;
+
+    void main() {
+        vec4 tex_color = texture2D(texture, fTexCoord);
+        gl_FragColor = vec4(VERTEX_COLOR.rgb, tex_color.a * beta);
+    }
+
+    </script>
+
+    <!-- Shaders wit shadow mapping for Skybox -->
+    <script type="x-shader/x-vertex" id="vshaderBoxShadow">
+        uniform mat4 projection;
+        uniform mat4 modelview;
+        attribute vec3 coords;
+        attribute vec3 normal;
+        varying vec3 vcoords;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
+        void main() {
+            vec4 eyeCoords = modelview * vec4(coords, 1.0);
+            gl_Position = projection * eyeCoords;
+            vcoords = coords;  // normalized already
+            viewCoords = vec3(eyeCoords);
+            vNormal = normal;
+        }
+    </script>
+    <script type="x-shader/x-fragment" id="fshaderBoxShadow">
+        precision mediump float;
+        varying vec3 vcoords;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
+        uniform samplerCube skybox;
+        uniform vec3 lightPosition;
+        uniform samplerCube lightShadowMap;
+        uniform vec2 shadowClipNearFar;
+
+        void main() {
+            vec3 toLightNormal = normalize(lightPosition - vcoords);
+            vec3 WlightPosition = vec3(lightPosition.xy,(lightPosition.z+20.0));
+
+            float fromLightToFrag =
+                (length(vcoords - lightPosition) - shadowClipNearFar.x) /
+                (shadowClipNearFar.y - shadowClipNearFar.x);
+
+            vec3 WtoLightNormal = normalize(WlightPosition-vcoords);
+
+            float shadowMapValue = textureCube(lightShadowMap, -toLightNormal).r;
+            vec3 N = normalize(-vNormal);
+            float lightIntensity = 0.3;
+            if ((shadowMapValue + 0.1) >= fromLightToFrag) {
+                lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
+            }
+
+            vec4 cubetex = textureCube(skybox, vcoords);
+            gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+
+        }
+    </script>
+
+    <script type="x-shader/x-vertex" id="vshaderBoxShadowGen">
+        precision mediump float;
+
+        uniform mat4 projection;
+        uniform mat4 modelview;
+
+        attribute vec3 coords;
+
+        varying vec3 vcoords;
+
+        void main()
+        {
+            vcoords = coords;
+            gl_Position = projection * modelview * vec4(coords, 1.0);
+        }
+    </script>
+
+    <script type="x-shader/x-fragment" id="fshaderBoxShadowGen">
+        precision mediump float;
+
+        uniform vec3 lightPosition;
+        uniform vec2 shadowClipNearFar;
+
+        varying vec3 vcoords;
+
+        void main()
+        {
+            vec3 fromLightToFrag = (vcoords - lightPosition);
+
+            float lightFragDist =
+                (length(fromLightToFrag) - shadowClipNearFar.x)
+                /
+                (shadowClipNearFar.y - shadowClipNearFar.x);
+
+            gl_FragColor = vec4(lightFragDist, lightFragDist, lightFragDist, 1.0);
+        }
+    </script>
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    </head>
+    <body>
+        <h1>Orbuculum</h1>
+        <span class="subtitle">not really, more like "mirror ball"</span>
+        <div class="browser-landing" id="main">
+            <div class="compact marquee">
+                <div class="voice-wrapper">
+                    <div id="results" class="voice-text card">
+                        <span class="final" id="final_span"></span>
+                        <span class="interim" id="interim_span"></span>
+                    </div>
+                    <div id="div_start">
+                        <button id="start_button" class="card"
+                            onclick="startButton(event)">
+                            <img alt="Start" id="start_img" src="image/mic.gif">
+                        </button>
+                    </div>
+                </div>
+                <div id="info">
+                    <p id="info_start">
+                        Tell <em>Orbuculum</em> the place you wanna see ...
+                        and click <em>wsad</em> to walk the map : )
+                    </p>
+                    <p id="info_speak_now" class="info-text">
+                        Speak now.
+                    </p>
+                    <p id="info_no_speech" class="info-text">
+                        No speech was detected. You may need to adjust your
+                        settings</a>.
+                    </p>
+                    <p id="info_no_microphone" class="info-text">
+                        No microphone was found. Ensure that a microphone is installed and that
+                        microphone settings</a> are configured correctly.
+                    </p>
+                    <p id="info_allow" class="info-text">
+                        Click the "Allow" button above to enable your microphone.
+                    </p>
+                    <p id="info_denied" class="info-text">
+                        Permission to use microphone was denied.
+                    </p>
+                    <p id="info_blocked" class="info-text">
+                        Permission to use microphone is blocked. To change, go to
+                        chrome://settings/contentExceptions#media-stream
+                    </p>
+                    <p id="info_upgrade" class="info-text">
+                        Web Speech API is not supported by this browser.
+                        Please consider latest Chrome.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <main>
+            <section class="canvas-wrapper">
+                <canvas width="600" height="400" id="glcanvas"></canvas>
+                <p id="message"></p>
+            </section>
+            <section class="map-wrapper">
+                <div id="map" tabindex="0"></div>
+                <div id="pac-container">
+                    <input id="pac-input" class="card"
+                     type="text" placeholder="Enter a location" >
+                </div>
+            </section>
+        </main>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"
+                integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+                crossorigin="anonymous"></script>
+        <script type="text/javascript" src="lib/webgl-debug.js"></script>
+        <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
+        <script type="text/javascript" src="lib/objects.js"></script>
+        <script type="text/javascript" src="lib/utils.js"></script>
+        <script type="text/javascript" src="lib/simple-rotator.js"></script>
+        <script type="text/javascript" src="lib/retrieve-img.js"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCSIanF_npOtptuVIacA2WBfJ3dADCJDM&libraries=places"></script>
+        <script type="text/javascript" src="main.js"></script>
+        <script src="lib/voice.js"></script>
+    </body>
+</html>
