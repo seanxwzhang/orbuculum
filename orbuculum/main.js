@@ -47,8 +47,24 @@ var textures = {};
 
 var lasttime;
 
-function animate() {
-    draw();
+var startBlur = false;
+var blurLen = 1;
+var prev;
+function animate(now) {
+    if (startBlur) {
+        blurLen = 9;
+        prev = new Date().getMilliseconds();
+        startBlur = false;
+    }
+    if (blurLen > 1) {
+        draw(blurLen);
+        if (now - prev > 250) {
+            blurLen -= 2;
+            prev = now;
+        }
+    } else {
+        draw();
+    }
     requestAnimationFrame(animate);
 }
 
@@ -61,7 +77,7 @@ function evolveSmoke() {
     })
 }
 
-function draw() {
+function draw(blurLen = 1) {
     gl.clearColor(0,0,0,1);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -111,7 +127,7 @@ function draw() {
         gl.useProgram(prog);
         gl.uniform3fv(gl.getUniformLocation(prog,"lightPosition"),lightPosition);
         gl.uniform1f(gl.getUniformLocation(prog,"shininess"),50);
-        gl.uniform1i(gl.getUniformLocation(prog,"blurLen"),1);
+        gl.uniform1i(gl.getUniformLocation(prog,"blurLen"),blurLen);
         gl.uniform1i(gl.getUniformLocation(prog,"skybox"), 0);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.orbuculumTex);
@@ -184,7 +200,8 @@ function loadTexture(texID, urls) {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[0]);
             gl.generateMipmap(gl.TEXTURE_2D);
         }
-        draw();
+        // draw();
+        startBlur = true;
     });
 }
 
@@ -200,25 +217,24 @@ function initframebuffer(){
     floatLinearExtension = gl.getExtension("OES_texture_float_linear");
     if (floatExtension && floatLinearExtension) {
         for (var i = 0; i < 6; i++) {
-                gl.texImage2D(
-                    gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                    0, gl.RGBA,
-                    textureSize, textureSize,
-                    0, gl.RGBA,
-                    gl.FLOAT, null
-                );
-            }
-    }
-    else {
-            for (var i = 0; i < 6; i++) {
-                gl.texImage2D(
-                    gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
-                    0, gl.RGBA,
-                    textureSize, textureSize,
-                    0, gl.RGBA,
-                    gl.UNSIGNED_BYTE, null
-                );
-            }
+            gl.texImage2D(
+                gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, gl.RGBA,
+                textureSize, textureSize,
+                0, gl.RGBA,
+                gl.FLOAT, null
+            );
+        }
+    } else {
+        for (var i = 0; i < 6; i++) {
+            gl.texImage2D(
+                gl.TEXTURE_CUBE_MAP_POSITIVE_X + i,
+                0, gl.RGBA,
+                textureSize, textureSize,
+                0, gl.RGBA,
+                gl.UNSIGNED_BYTE, null
+            );
+        }
     }
     shadowMapFrameBuffer = gl.createFramebuffer();
     gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMapFrameBuffer);
@@ -395,7 +411,7 @@ function init() {
 
     }
     catch(e) {
-        document.getElementById("message").innerHTML = "Your browser might not support WebGl: " + e;
+        document.getElementById("message").innerHTML = e;
         return;
     }
 }
