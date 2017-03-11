@@ -92,7 +92,7 @@
             vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
 			float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
 			if(dot(N, toLightNormal) < 0.0)spec=0.0;
-			float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0) + spec;
+			float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0);// + spec;
 			vec4 cubetex = textureCube(skybox, T);
             gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
 			//gl_FragColor = vec4(vec3(0.5,0.5,0.5)*lightIntensity,1.0);
