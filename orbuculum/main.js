@@ -51,7 +51,7 @@ var startBlur = false;
 var maxSigma = 2.0, minSigma = 0.3;
 var sigma = minSigma;
 var change = minSigma - maxSigma;
-var duration = 500;  // duration controls the total blur elapse time!
+var duration = 800;  // duration controls the total blur elapse time!
 var start;
 function easingfunc(t, b, c, d) {
     return c*(t/=d)*t + b;

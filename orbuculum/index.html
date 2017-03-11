@@ -20,7 +20,7 @@
         void main() {
             vec4 eyeCoords = modelview * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
-            vcoords = coords;// normalized already
+            vcoords = coords;  // normalized already
             viewCoords = vec3(eyeCoords);
             vNormal = vec3(modelview * vec4(normal,0.0));
         }
@@ -33,16 +33,11 @@
         uniform samplerCube skybox;
         uniform vec3 lightPosition;
         void main() {
-
-             vec3 toLightNormal = normalize(lightPosition - viewCoords);
+            vec3 toLightNormal = normalize(lightPosition - viewCoords);
             vec3 N = normalize(-vNormal);
             float lightIntensity = 0.3 + 0.8 * max(dot(N, toLightNormal), 0.0);
             vec4 cubetex = textureCube(skybox, vcoords);
             gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
-
-            //gl_FragColor = vec4(vec3(0.5,0.5,0.5) * lightIntensity, 1.0);
-            //gl_FragColor = textureCube(skybox, vcoords);
-            //gl_FragColor = vec4(0.5,0.5,0.5,1.0);
         }
     </script>
     <!-- Shaders for Ball -->
@@ -79,7 +74,6 @@
         }
 
         void main() {
-
             vec3 toLightNormal = normalize(lightPosition - viewCoords);
 
             vec3 N = normalize(vNormal);
@@ -126,13 +120,10 @@
                 cubetex = textureCube(skybox, T);
             }
             gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
-            //gl_FragColor = vec4(vec3(0.5,0.5,0.5)*lightIntensity,1.0);
-            //gl_FragColor = cubetex;
-            // gl_FragColor = vec4(vNormal.z,0,-vNormal.z, 1.0);
-            // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }
     </script>
-    <script type="x-shader/x-vertex" id="vGshader"> //Gouraud shading model, assume uniform light
+    <script type="x-shader/x-vertex" id="vGshader">
+    //Gouraud shading model, assume uniform light
     precision mediump float;
     attribute vec3 coords;
     attribute vec2 texcoords;
@@ -164,9 +155,7 @@
 
     void main() {
         vec4 tex_color = texture2D(texture, fTexCoord);
-        // gl_FragColor = tex_color;
         gl_FragColor = vec4(VERTEX_COLOR.rgb, tex_color.a * beta);
-        // gl_FragColor = beta * VERTEX_COLOR + (1.0 - beta) * tex_color;
     }
 
     </script>
@@ -183,9 +172,8 @@
         void main() {
             vec4 eyeCoords = modelview * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
-            vcoords = coords;// normalized already
+            vcoords = coords;  // normalized already
             viewCoords = vec3(eyeCoords);
-            //vNormal = vec3(modelview * vec4(normal,0.0));
             vNormal = normal;
         }
     </script>
@@ -200,17 +188,11 @@
         uniform vec2 shadowClipNearFar;
 
         void main() {
-
-             vec3 toLightNormal = normalize(lightPosition - vcoords);
-            //float fromLightToFrag =
-                //(length(viewCoords - lightPosition) - shadowClipNearFar.x)
-                ///
-                //(shadowClipNearFar.y - shadowClipNearFar.x);
+            vec3 toLightNormal = normalize(lightPosition - vcoords);
             vec3 WlightPosition = vec3(lightPosition.xy,(lightPosition.z+20.0));
 
             float fromLightToFrag =
-                (length(vcoords - lightPosition) - shadowClipNearFar.x)
-                /
+                (length(vcoords - lightPosition) - shadowClipNearFar.x) /
                 (shadowClipNearFar.y - shadowClipNearFar.x);
 
             vec3 WtoLightNormal = normalize(WlightPosition-vcoords);
@@ -219,15 +201,12 @@
             vec3 N = normalize(-vNormal);
             float lightIntensity = 0.3;
             if ((shadowMapValue + 0.1) >= fromLightToFrag) {
-                    lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
+                lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
             }
 
             vec4 cubetex = textureCube(skybox, vcoords);
             gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
 
-            //gl_FragColor = vec4(vec3(1.0,1.0,1.0) * lightIntensity, 1.0);
-            //gl_FragColor = textureCube(lightShadowMap, -WtoLightNormal);
-            //gl_FragColor = vec4(fromLightToFrag,fromLightToFrag,fromLightToFrag,1.0);
         }
     </script>
 
@@ -237,16 +216,13 @@
         uniform mat4 projection;
         uniform mat4 modelview;
 
-
         attribute vec3 coords;
 
         varying vec3 vcoords;
 
         void main()
         {
-            //vcoords = vec3(modelview * vec4(coords, 1.0));
             vcoords = coords;
-
             gl_Position = projection * modelview * vec4(coords, 1.0);
         }
     </script>
@@ -262,7 +238,6 @@
         void main()
         {
             vec3 fromLightToFrag = (vcoords - lightPosition);
-            //vec3 fromLightToFrag = (vcoords - vec3(lightPosition.xy,(lightPosition.z+20.0)));
 
             float lightFragDist =
                 (length(fromLightToFrag) - shadowClipNearFar.x)
