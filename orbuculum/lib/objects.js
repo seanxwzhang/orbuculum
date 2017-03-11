@@ -164,6 +164,7 @@ class Cube extends Shape {
 	link(gl, program) {
         super.link(gl, program);
         this.normal_loc = gl.getAttribLocation(program, "normal");
+        this.modelTrans_loc = gl.getUniformLocation(program, 'modelTrans');
 	}
 	
 	upload(gl) {
@@ -176,13 +177,14 @@ class Cube extends Shape {
         this.copy_to_GPU = true;
     }
 	
-    render(projection, modelview) {
+    render(projection, modelview, modelTrans) {
         gl.bindBuffer(gl.ARRAY_BUFFER, this.coordsBuffer);
         gl.vertexAttribPointer(this.coords_loc, 3, gl.FLOAT, false, 0, 0);
 		gl.bindBuffer(gl.ARRAY_BUFFER, this.normalBuffer);
         gl.vertexAttribPointer(this.normal_loc, 3, gl.FLOAT, false, 0, 0);
         gl.uniformMatrix4fv(this.projection_loc, false, projection);
         gl.uniformMatrix4fv(this.modelview_loc, false, modelview);
+        gl.uniformMatrix4fv(this.modelTrans_loc, false, modelTrans);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
         gl.drawElements( gl.TRIANGLES, this.count, gl.UNSIGNED_SHORT, 0 );
     }

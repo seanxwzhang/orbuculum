@@ -21,11 +21,13 @@ var rotator; // rotator object
 
 var projection = mat4.create();
 var modelview = mat4.create();
+var SBmodelTrans = mat4.create();
+mat4.fromScaling(SBmodelTrans, [100, 100, 100]);
 var normalMV = mat3.create();
 var invMV = mat3.create();
 
 var oldmodelview = mat4.create();
-var lightPosition = vec3.fromValues(10,15,25);
+var lightPosition = vec3.fromValues(0,15,15);
 
 var shadowMapFrameBuffer,shadowMapCube,shadowMapRenderBuffer;
 var floatExtension, floatLinearExtension;
@@ -100,7 +102,7 @@ function draw() {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, textures.skyboxTex);
         gl.enableVertexAttribArray(skybox.coords_loc);
         gl.enableVertexAttribArray(skybox.normal_loc);
-        skybox.render(projection,oldmodelview);
+        skybox.render(projection,modelview,SBmodelTrans);
         gl.disableVertexAttribArray(skybox.coords_loc);
         gl.disableVertexAttribArray(skybox.normal_loc);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
@@ -118,7 +120,7 @@ function draw() {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, shadowMapCube);
         gl.enableVertexAttribArray(skybox.coords_loc);
         gl.enableVertexAttribArray(skybox.normal_loc);
-        skybox.render(projection,oldmodelview);
+        skybox.render(projection,modelview,SBmodelTrans);
         gl.disableVertexAttribArray(skybox.coords_loc);
         gl.disableVertexAttribArray(skybox.normal_loc);
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
@@ -370,12 +372,12 @@ function init() {
         createCamMatrix();
 
         rotator = new SimpleRotator(canvas, draw);
-        rotator.setView([0,0,1], [0,1,0], 20);
+        rotator.setView([0,0,1], [0,1,0], 30);
 
         oldmodelview = rotator.getViewMatrix();
 
 
-        skybox = new Cube(50);
+        skybox = new Cube(200);
         orbuculum = new Sphere(7);
 
         if(toggle)skybox.link(gl, prog_Box);
@@ -422,9 +424,9 @@ function init() {
 init();
 initMap();
 loadTexture('skyboxTex', [
-    "image/strange/pos-x.png", "image/strange/neg-x.png",
-    "image/strange/pos-y.png", "image/strange/neg-y.png",
-    "image/strange/pos-z.png", "image/strange/neg-z.png"
+    "image/candidate3/pos-x.png", "image/candidate3/neg-x.png",
+    "image/candidate3/pos-y.png", "image/candidate3/neg-y.png",
+    "image/candidate3/pos-z.png", "image/candidate3/neg-z.png"
     ]);
 loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 loadTexture('smokeTex', ["image/Smoke-Element.png"]);

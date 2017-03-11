@@ -12,13 +12,14 @@
     <script type="x-shader/x-vertex" id="vshaderBox">
         uniform mat4 projection;
         uniform mat4 modelview;
+        uniform mat4 modelTrans;
         attribute vec3 coords;
         attribute vec3 normal;
         varying vec3 vcoords;
         varying vec3 viewCoords;
         varying vec3 vNormal;
         void main() {
-            vec4 eyeCoords = modelview * vec4(coords, 1.0);
+            vec4 eyeCoords = modelview * modelTrans * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
             vcoords = coords;  // normalized already
             viewCoords = vec3(eyeCoords);
