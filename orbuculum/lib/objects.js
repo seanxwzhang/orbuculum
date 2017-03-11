@@ -202,8 +202,8 @@ class Square extends Shape {
         this.texCoords.push([0.0, 1.0]);
         this.indices = [0, 1, 2, 0, 3, 2];
         this.shapecolor = shapecolor;
-        this.beta = 0.5;
-        this.ambient = 0.3;
+        this.beta = 0.2 * Math.random();
+        this.ambient = 0.7 * Math.random();
     }
     link(gl, program) {
         super.link(gl, program);
