@@ -13,36 +13,36 @@
         uniform mat4 projection;
         uniform mat4 modelview;
         attribute vec3 coords;
-		attribute vec3 normal;
+        attribute vec3 normal;
         varying vec3 vcoords;
-		varying vec3 viewCoords;
-		varying vec3 vNormal;
+        varying vec3 viewCoords;
+        varying vec3 vNormal;
         void main() {
             vec4 eyeCoords = modelview * vec4(coords, 1.0);
             gl_Position = projection * eyeCoords;
             vcoords = coords;// normalized already
-			viewCoords = vec3(eyeCoords);
-			vNormal = vec3(modelview * vec4(normal,0.0));
+            viewCoords = vec3(eyeCoords);
+            vNormal = vec3(modelview * vec4(normal,0.0));
         }
     </script>
     <script type="x-shader/x-fragment" id="fshaderBox">
         precision mediump float;
         varying vec3 vcoords;
-		varying vec3 vNormal;
-		varying vec3 viewCoords;
+        varying vec3 vNormal;
+        varying vec3 viewCoords;
         uniform samplerCube skybox;
-		uniform vec3 lightPosition;
+        uniform vec3 lightPosition;
         void main() {
 
- 			vec3 toLightNormal = normalize(lightPosition - viewCoords);
-			vec3 N = normalize(-vNormal);
-			float lightIntensity = 0.3 + 0.8 * max(dot(N, toLightNormal), 0.0);
-			vec4 cubetex = textureCube(skybox, vcoords);
-			gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
+             vec3 toLightNormal = normalize(lightPosition - viewCoords);
+            vec3 N = normalize(-vNormal);
+            float lightIntensity = 0.3 + 0.8 * max(dot(N, toLightNormal), 0.0);
+            vec4 cubetex = textureCube(skybox, vcoords);
+            gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
 
-			//gl_FragColor = vec4(vec3(0.5,0.5,0.5) * lightIntensity, 1.0);
+            //gl_FragColor = vec4(vec3(0.5,0.5,0.5) * lightIntensity, 1.0);
             //gl_FragColor = textureCube(skybox, vcoords);
-			//gl_FragColor = vec4(0.5,0.5,0.5,1.0);
+            //gl_FragColor = vec4(0.5,0.5,0.5,1.0);
         }
     </script>
     <!-- Shaders for Ball -->
@@ -58,7 +58,7 @@
             gl_Position = projection * eyeCoords;
             viewCoords = eyeCoords.xyz;
             //vNormal = normal;
-			vNormal = vec3(modelview * vec4(normal,0.0));
+            vNormal = vec3(modelview * vec4(normal,0.0));
         }
     </script>
     <script type="x-shader/x-fragment" id="fshader">
@@ -68,8 +68,13 @@
         uniform samplerCube skybox;
         uniform mat3 normalMV; // normal matrix of modelview matrix
         uniform mat3 invMV;
-		uniform vec3 lightPosition;
-		uniform float shininess;
+        uniform vec3 lightPosition;
+        uniform float shininess;
+        // uniform int blurLen;
+        // kernels
+        float kernel3[3], kernel5[5], kernel7[7], kernel9[9],
+              kernel11[11], kernel13[13];
+
         void main() {
             // vec3 N = normalMV * vNormal;
             // vec3 V = -viewCoords;
@@ -78,25 +83,50 @@
             // R = normalize(R);
             // gl_FragColor = textureCube(skybox, R);
 
-			vec3 toLightNormal = normalize(lightPosition - viewCoords);
+            vec3 toLightNormal = normalize(lightPosition - viewCoords);
 
             //vec3 N = normalize(normalMV * vNormal);
-			vec3 N = normalize(vNormal);
+            vec3 N = normalize(vNormal);
             vec3 V = -viewCoords;
-			vec3 norV = normalize(V);
+            vec3 norV = normalize(V);
             //vec3 R = -reflect(V,N);
-			vec3 R = reflect(-norV,N);
-			vec3 norR = normalize(R);
+            vec3 R = reflect(-norV,N);
+            vec3 norR = normalize(R);
 
-			vec3 Half = normalize( toLightNormal + norV );
+            vec3 Half = normalize( toLightNormal + norV );
             vec3 T = invMV * R; // Transform by inverse of the view transform that was applied to the skybox
-			float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
-			if(dot(N, toLightNormal) < 0.0)spec=0.0;
-			float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0) + spec;
-			vec4 cubetex = textureCube(skybox, T);
+            float spec = 4.0 * pow(max(dot(norR,norV),0.0),shininess);
+            if(dot(N, toLightNormal) < 0.0)spec=0.0;
+            float lightIntensity = 0.6 + 0.8 * max(dot(N, toLightNormal), 0.0) + spec;
+            vec4 cubetex = vec4(0.0,0.0,0.0,0.0);
+            // do blur if required
+            int blurLen = 3;
+            if (blurLen > 1) {
+                // prepare two base vectors
+                vec3 v1 = normalize(cross(T, vec3(0.0,0.0,1.0)));
+                vec3 v2 = normalize(cross(T, v1));
+                // two pass gaussian filter
+                kernel3[0] = kernel3[2] = 0.27901;
+                kernel3[1] = 0.44198;
+                int cnt = (blurLen - 1) / 2;
+                for (int i = 0; i <= 13; i++) {
+                    if (i >= blurLen-1) break;
+                    float s1 = float(i - cnt);
+                    vec3 off1 = vec3(v1[0]*s1, v1[1]*s1, v1[2]*s1);
+                    vec3 base = T + off1;
+                    for (int j = 0; j <= 13; j++) {
+                        if (j >= blurLen-1) break;
+                        float s2 = float(j - cnt);
+                        vec3 off2 = vec3(v1[0]*s2, v1[1]*s2, v1[2]*s2);
+                        cubetex += kernel3[j] * textureCube(skybox, base + off2);
+                    }
+                }
+            } else {
+                cubetex = textureCube(skybox, T);
+            }
             gl_FragColor = vec4(cubetex.rgb * lightIntensity,cubetex.a);
-			//gl_FragColor = vec4(vec3(0.5,0.5,0.5)*lightIntensity,1.0);
-			//gl_FragColor = cubetex;
+            //gl_FragColor = vec4(vec3(0.5,0.5,0.5)*lightIntensity,1.0);
+            //gl_FragColor = cubetex;
             // gl_FragColor = vec4(vNormal.z,0,-vNormal.z, 1.0);
             // gl_FragColor = vec4(1.0,0.0,0.0,1.0);
         }

@@ -41,7 +41,6 @@ main section {
 }
 
 #message {
-  font-weight: bold;
   position: absolute;
   left: 0;
   bottom: -150px;
