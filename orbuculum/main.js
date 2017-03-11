@@ -53,12 +53,13 @@ var prev;
 function animate(now) {
     if (startBlur) {
         blurLen = 9;
-        prev = new Date().getMilliseconds();
+        prev = now;
         startBlur = false;
     }
     if (blurLen > 1) {
         draw(blurLen);
-        if (now - prev > 250) {
+        if (now - prev > 200) {
+            console.log(now);
             blurLen -= 2;
             prev = now;
         }
