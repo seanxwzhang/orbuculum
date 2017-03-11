@@ -45,14 +45,19 @@ var toggle = false;
 
 var textures = {};
 
+var lasttime;
+
 function animate() {
     draw();
     requestAnimationFrame(animate);
 }
 
 function evolveSmoke() {
+    var now = new Date();
+    var delta_time = lasttime - now;
+    lasttime = now;
     smokeParticles.map((particle) => {
-        quat.rotateZ(particle.randQ,particle.randQ,delta * Math.random());
+        quat.rotateZ(particle.randQ,particle.randQ,delta_time * delta * Math.random() * 0.1);
     })
 }
 
@@ -362,17 +367,30 @@ function init() {
 
 		generateShadowMap();
 		
-        for (let p = 0; p < numParticles; p++) {
+        for (let p = 0; p < Math.floor(numParticles / 2); p++) {
             var particle = new Square(30, [0.1, 0.4, 0.8, 1.0]);
             particle.randQ = quat.fromValues(0, 0, 1, Math.random() - 1);
             quat.normalize(particle.randQ, particle.randQ);
-            particle.randV = vec3.fromValues(40*(Math.random()-1) + 20, 30*(Math.random()-1) - 10, 20*(Math.random()-1));
+            particle.randV = vec3.fromValues(40*(Math.random()-1) + 40, 30*(Math.random()-1) - 10, 20*(Math.random()-1));
             particle.randS = vec3.fromValues(1, 1, 1);
             particle.modelTransform = mat4.create();
             particle.link(gl, progSmoke)
             particle.upload(gl);
             smokeParticles.push(particle);
         }
+
+        for (let p = 0; p < Math.floor(numParticles); p++) {
+            var particle = new Square(30, [0.1, 0.4, 0.8, 1.0]);
+            particle.randQ = quat.fromValues(0, 0, 1, Math.random() - 1);
+            quat.normalize(particle.randQ, particle.randQ);
+            particle.randV = vec3.fromValues(40*(Math.random()-1), 30*(Math.random()-1) - 10, 20*(Math.random()-1));
+            particle.randS = vec3.fromValues(1, 1, 1);
+            particle.modelTransform = mat4.create();
+            particle.link(gl, progSmoke)
+            particle.upload(gl);
+            smokeParticles.push(particle);
+        }
+        
 
     }
     catch(e) {
@@ -391,6 +409,7 @@ loadTexture('skyboxTex', [
     ]);
 loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 loadTexture('smokeTex', ["image/Smoke-Element.png"]);
+lasttime = new Date();
 animate();
 /* $(document).keydown(function(e){
     moveLocation(e);
