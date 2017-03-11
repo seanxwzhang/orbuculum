@@ -15,7 +15,7 @@ var prog_shadow_gen;
 var progSmoke; // smoke program
 var smokeParticles = []; // smokes
 var numParticles = 150;
-var delta = 0.003; //rotation delta
+var delta = 0.005; //rotation delta
 
 var rotator; // rotator object
 
