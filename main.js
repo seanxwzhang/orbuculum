@@ -9,8 +9,8 @@ var skybox;// skybox object
 var prog; // orbuculum program
 var orbuculum; // orbuculum object
 
-var prog_shadow;
-var prog_shadow_gen;
+var prog_shadow;//shadow program
+var prog_shadow_gen;//shadow generation program
 
 var progSmoke; // smoke program
 var smokeParticles = []; // smokes
@@ -55,6 +55,13 @@ var sigma = minSigma;
 var change = minSigma - maxSigma;
 var duration = 800;  // duration controls the total blur elapse time!
 var start;
+/**
+ * easing function to create a quad-in effect
+ * @param {number} t current time in ms
+ * @param {number} b begin value
+ * @param {number} c total change
+ * @param {number} d total duration
+ */
 function easingfunc(t, b, c, d) {
     return c*(t/=d)*t + b;
 }
@@ -131,6 +138,7 @@ function draw() {
         gl.useProgram(prog);
         gl.uniform3fv(gl.getUniformLocation(prog,"lightPosition"),lightPosition);
         gl.uniform1f(gl.getUniformLocation(prog,"shininess"),50);
+        // use sigma to control the blur effect
         gl.uniform1f(gl.getUniformLocation(prog,"sigma"),sigma);
         gl.uniform1i(gl.getUniformLocation(prog,"skybox"), 0);
         gl.activeTexture(gl.TEXTURE0);
@@ -143,7 +151,7 @@ function draw() {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
     }
 
-      // draw smokes
+    // draw smokes
     if (textures.smokeTex && smokeParticles.length > 0) {
         evolveSmoke();
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -167,6 +175,7 @@ function draw() {
 
 
 function loadTexture(texID, urls) {
+    // sync loading all imgs then do the texture binding
     Promise.all(urls.map((url, idx) => {
         return new Promise(resolve => {
             let img = new Image();
@@ -204,12 +213,15 @@ function loadTexture(texID, urls) {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[0]);
             gl.generateMipmap(gl.TEXTURE_2D);
         }
-        // draw();
+        // every time loaded new texture, we create a graduate blur to clear effect.
         startBlur = true;
     });
 }
 
-//the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+/**
+ * this function create a texture object to do cube map, a framebuffer, and a renderbuffer
+ * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+ */
 function initframebuffer(){
     shadowMapCube = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP,shadowMapCube);
@@ -256,7 +268,10 @@ function initframebuffer(){
 }
 
 
-//the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+/**
+ * this function generate the model view matrix from the light position for positive x, negative x,positive y, negative y,positive z, negative z
+ * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+ */
 function createCamMatrix(){
     mat4.perspective(shadowMapCamProj,glMatrix.toRadian(90),1.0,shadowClipNearFar[0],shadowClipNearFar[1] );
     mat4.lookAt(shadowMapCamView[0],lightPosition,vec3.add(vec3.create(), lightPosition, vec3.fromValues(1, 0, 0)), vec3.fromValues(0, -1.0, 0));
@@ -266,7 +281,11 @@ function createCamMatrix(){
     mat4.lookAt(shadowMapCamView[4],lightPosition,vec3.add(vec3.create(), lightPosition, vec3.fromValues(0, 0, 1)), vec3.fromValues(0, -1.0, 0));
     mat4.lookAt(shadowMapCamView[5],lightPosition,vec3.add(vec3.create(), lightPosition, vec3.fromValues(0, 0, -1)), vec3.fromValues(0, -1.0, 0));
 }
-//the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+
+/**
+ * this function draws the ball and skybox on the texture and store in the frame buffer which can be used to generate shadows
+ * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+ */
 function generateShadowMap(){
     gl.useProgram(prog_shadow_gen);
 
@@ -274,14 +293,15 @@ function generateShadowMap(){
     gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMapFrameBuffer);
     gl.bindRenderbuffer(gl.RENDERBUFFER, shadowMapRenderBuffer);
 
-     gl.viewport(0, 0, textureSize, textureSize);
+    gl.viewport(0, 0, textureSize, textureSize);
     gl.enable(gl.DEPTH_TEST);
-    //gl.enable(gl.CULL_FACE);
+
 
     gl.uniform2fv(gl.getUniformLocation(prog_shadow_gen,"shadowClipNearFar"),shadowClipNearFar);
-     gl.uniform3fv(gl.getUniformLocation(prog_shadow_gen,"lightPosition"),lightPosition);
+    gl.uniform3fv(gl.getUniformLocation(prog_shadow_gen,"lightPosition"),lightPosition);
     gl.uniformMatrix4fv(gl.getUniformLocation(prog_shadow_gen,"projection"),gl.FALSE,shadowMapCamProj);
 
+	//draw for each direction
     for (var i = 0; i < shadowMapCamView.length; i++) {
         // Set per light uniforms
         gl.uniformMatrix4fv(
