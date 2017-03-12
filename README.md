@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Orbuculum
 
 An orbuculum is a crystal or glass ball and common fortune telling object. In this project, we propose to present street views in an orbuculum with fancy styles and also in an interactive way.  
@@ -38,3 +39,4 @@ Voice input might require latest chrome.
 * Shadow mapping tutorials - [IndigoCS webgl tutorials](https://github.com/sessamekesh/IndigoCS-webgl-tutorials/tree/master/Shadow%20Mapping)
 * Voice input - [Google's Speech](https://www.google.com/intl/en/chrome/demos/speech.html)
 * glMatrix - [Brandon Jones](http://glmatrix.net/)
+
