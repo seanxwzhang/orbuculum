@@ -1,6 +1,6 @@
 # Orbuculum
 
-An orbuculum is a crystal or glass ball and common fortune telling object. In this project, we propose to present street views in an orbuculum with fancy styles and also in an interactive way.  
+An orbuculum is a crystal or glass ball and common fortune telling object. In this project, we propose to present street views in an orbuculum with fancy styles and also in an interactive way.
 
 The interactions implemented enable users to control where they want to see (only within the range of Google Streetview's ability) via either voice recognition or straightforward direction control. The orbuculum is placed in a mystical environment with smokes and shadow.
 
@@ -30,7 +30,7 @@ Voice input might require latest chrome.
 
 ## Authors
 
-* **Xingan Wang** - 904761242 - xinganwang@ucla.edu
+* **Xingan Wang** - 904761242 - wangxgwxg@gmail.com
 * **Xiaowen Zhang** - 304761711 - seanzhang@cs.ucla.edu
 * **Shuang Zhang** - 804296230 - alanzhang88@ucla.edu
 
