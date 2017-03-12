@@ -1,0 +1,40 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+Image	orbuculum/lib/cubemap-cut.py	/^from PIL import Image$/;"	kind:namespace	line:6
+Image	orbuculum/lib/equi2cube.py	/^from PIL import Image$/;"	kind:namespace	line:4
+atan2	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+clip	orbuculum/lib/equi2cube.py	/^from numpy import clip$/;"	kind:namespace	line:6
+convertBack	orbuculum/lib/equi2cube.py	/^def convertBack(imgIn,imgOut):$/;"	kind:function	line:30
+cos	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+cube_size	orbuculum/lib/cubemap-cut.py	/^    cube_size = width \/ 4$/;"	kind:variable	line:28
+cubemap-cut.py	orbuculum/lib/cubemap-cut.py	1;"	kind:file	line:1
+equi2cube.py	orbuculum/lib/equi2cube.py	1;"	kind:file	line:1
+file_extension	orbuculum/lib/cubemap-cut.py	/^file_extension = ".png"$/;"	kind:variable	line:15
+filelist	orbuculum/lib/cubemap-cut.py	/^    filelist = []$/;"	kind:variable	line:30
+floor	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+fn	orbuculum/lib/cubemap-cut.py	/^                fn = name_map[row][col] + file_extension$/;"	kind:variable	line:36
+hypot	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+im	orbuculum/lib/cubemap-cut.py	/^    im = Image.open(infile)$/;"	kind:variable	line:23
+imgIn	orbuculum/lib/equi2cube.py	/^imgIn = Image.open(sys.argv[1])$/;"	kind:variable	line:79
+imgOut	orbuculum/lib/equi2cube.py	/^imgOut = Image.new("RGB",(inSize[0],inSize[0]*3\/4),"black")$/;"	kind:variable	line:81
+inSize	orbuculum/lib/equi2cube.py	/^inSize = imgIn.size$/;"	kind:variable	line:80
+infile	orbuculum/lib/cubemap-cut.py	/^infile = sys.argv[1]$/;"	kind:variable	line:13
+name_map	orbuculum/lib/cubemap-cut.py	/^     ["", "", "posy", ""],$/;"	kind:variable	line:18
+os	orbuculum/lib/cubemap-cut.py	/^import os.path$/;"	kind:namespace	line:5
+outImgToXYZ	orbuculum/lib/equi2cube.py	/^def outImgToXYZ(i,j,face,edge):$/;"	kind:function	line:12
+path	orbuculum/lib/cubemap-cut.py	/^import os.path$/;"	kind:namespace	line:5
+pi	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+print_function	orbuculum/lib/cubemap-cut.py	/^from __future__ import print_function$/;"	kind:namespace	line:3
+sin	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+sx	orbuculum/lib/cubemap-cut.py	/^                sx = cube_size * col$/;"	kind:variable	line:34
+sy	orbuculum/lib/cubemap-cut.py	/^                sy = cube_size * row$/;"	kind:variable	line:35
+sys	orbuculum/lib/cubemap-cut.py	/^import sys$/;"	kind:namespace	line:4
+sys	orbuculum/lib/equi2cube.py	/^import sys$/;"	kind:namespace	line:3
+tan	orbuculum/lib/equi2cube.py	/^from math import pi,sin,cos,tan,atan2,hypot,floor$/;"	kind:namespace	line:5
+zf	orbuculum/lib/cubemap-cut.py	/^    zf = zipfile.ZipFile(zfname, mode='w')$/;"	kind:variable	line:43
+zfname	orbuculum/lib/cubemap-cut.py	/^    zfname = filename + '.zip'$/;"	kind:variable	line:41
+zipfile	orbuculum/lib/cubemap-cut.py	/^import zipfile$/;"	kind:namespace	line:7

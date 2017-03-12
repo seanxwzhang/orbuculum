@@ -424,9 +424,9 @@ function init() {
 init();
 initMap();
 loadTexture('skyboxTex', [
-    "image/candidate3/pos-x.png", "image/candidate3/neg-x.png",
-    "image/candidate3/pos-y.png", "image/candidate3/neg-y.png",
-    "image/candidate3/pos-z.png", "image/candidate3/neg-z.png"
+    "orbuculum/image/candidate3/pos-x.png", "orbuculum/image/candidate3/neg-x.png",
+    "orbuculum/image/candidate3/pos-y.png", "orbuculum/image/candidate3/neg-y.png",
+    "orbuculum/image/candidate3/pos-z.png", "orbuculum/image/candidate3/neg-z.png"
     ]);
 loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 loadTexture('smokeTex', ["image/Smoke-Element.png"]);
