@@ -79,6 +79,7 @@ function animate(now) {
     requestAnimationFrame(animate);
 }
 
+// rotate the smoke
 function evolveSmoke() {
     var now = new Date();
     var delta_time = lasttime - now;
@@ -88,6 +89,7 @@ function evolveSmoke() {
     })
 }
 
+// draw function that will be called every requested time frame
 function draw() {
     gl.clearColor(0,0,0,1);
     gl.viewport(0, 0, canvas.width, canvas.height);
@@ -173,7 +175,7 @@ function draw() {
 
 }
 
-
+// function to load texture from urls
 function loadTexture(texID, urls) {
     // sync loading all imgs then do the texture binding
     Promise.all(urls.map((url, idx) => {
@@ -353,6 +355,7 @@ function generateShadowMap(){
 
 }
 
+// init function, creating programs and objects
 function init() {
     try {
         canvas = document.getElementById("glcanvas");
@@ -440,7 +443,7 @@ function init() {
     }
 }
 
-// main function
+// main logic starts here
 init();
 initMap();
 loadTexture('skyboxTex', [
