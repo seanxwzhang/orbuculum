@@ -1,6 +1,6 @@
 # Orbuculum
 
-An orbuculum is a crystal or glass ball and common fortune telling object. In this project, we propose to present street views in an orbuculum with fancy styles and also in an interactive way.  
+An orbuculum is a crystal or glass ball and common fortune telling object. In this project, we propose to present street views in an orbuculum with fancy styles and also in an interactive way.
 
 ## How to run the project
 
@@ -28,7 +28,7 @@ Voice input might require latest chrome.
 
 ## Authors
 
-* **Xingan Wang** - 904761242 - xinganwang@ucla.edu
+* **Xingan Wang** - 904761242 - wangxgwxg@gmail.com
 * **Xiaowen Zhang** - 304761711 - seanzhang@cs.ucla.edu
 * **Shuang Zhang** - 804296230 - alanzhang88@ucla.edu
 
