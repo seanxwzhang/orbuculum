@@ -378,7 +378,7 @@ function init() {
 
 
         skybox = new Cube(200);
-        orbuculum = new Sphere(7);
+        orbuculum = new Sphere(8);
 
         if(toggle)skybox.link(gl, prog_Box);
         else skybox.link(gl, prog_shadow);
