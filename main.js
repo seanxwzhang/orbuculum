@@ -9,8 +9,8 @@ var skybox;// skybox object
 var prog; // orbuculum program
 var orbuculum; // orbuculum object
 
-var prog_shadow;
-var prog_shadow_gen;
+var prog_shadow;//shadow program
+var prog_shadow_gen;//shadow generation program
 
 var progSmoke; // smoke program
 var smokeParticles = []; // smokes
@@ -209,7 +209,10 @@ function loadTexture(texID, urls) {
     });
 }
 
-//the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+/**
+ * this function create a texture object to do cube map, a framebuffer, and a renderbuffer
+ * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+ */
 function initframebuffer(){
     shadowMapCube = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_CUBE_MAP,shadowMapCube);
@@ -256,7 +259,10 @@ function initframebuffer(){
 }
 
 
-//the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+/**
+ * this function generate the model view matrix from the light position for positive x, negative x,positive y, negative y,positive z, negative z
+ * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+ */
 function createCamMatrix(){
     mat4.perspective(shadowMapCamProj,glMatrix.toRadian(90),1.0,shadowClipNearFar[0],shadowClipNearFar[1] );
     mat4.lookAt(shadowMapCamView[0],lightPosition,vec3.add(vec3.create(), lightPosition, vec3.fromValues(1, 0, 0)), vec3.fromValues(0, -1.0, 0));
@@ -266,7 +272,11 @@ function createCamMatrix(){
     mat4.lookAt(shadowMapCamView[4],lightPosition,vec3.add(vec3.create(), lightPosition, vec3.fromValues(0, 0, 1)), vec3.fromValues(0, -1.0, 0));
     mat4.lookAt(shadowMapCamView[5],lightPosition,vec3.add(vec3.create(), lightPosition, vec3.fromValues(0, 0, -1)), vec3.fromValues(0, -1.0, 0));
 }
-//the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+
+/**
+ * this function draws the ball and skybox on the texture and store in the frame buffer which can be used to generate shadows
+ * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
+ */
 function generateShadowMap(){
     gl.useProgram(prog_shadow_gen);
 
@@ -274,14 +284,15 @@ function generateShadowMap(){
     gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMapFrameBuffer);
     gl.bindRenderbuffer(gl.RENDERBUFFER, shadowMapRenderBuffer);
 
-     gl.viewport(0, 0, textureSize, textureSize);
+    gl.viewport(0, 0, textureSize, textureSize);
     gl.enable(gl.DEPTH_TEST);
-    //gl.enable(gl.CULL_FACE);
+
 
     gl.uniform2fv(gl.getUniformLocation(prog_shadow_gen,"shadowClipNearFar"),shadowClipNearFar);
-     gl.uniform3fv(gl.getUniformLocation(prog_shadow_gen,"lightPosition"),lightPosition);
+    gl.uniform3fv(gl.getUniformLocation(prog_shadow_gen,"lightPosition"),lightPosition);
     gl.uniformMatrix4fv(gl.getUniformLocation(prog_shadow_gen,"projection"),gl.FALSE,shadowMapCamProj);
 
+	//draw for each direction
     for (var i = 0; i < shadowMapCamView.length; i++) {
         // Set per light uniforms
         gl.uniformMatrix4fv(

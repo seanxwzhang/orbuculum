@@ -3,12 +3,13 @@
     <head>
     <meta charset="UTF-8">
     <title>Orbuculum</title>
-    <!-- This index.html file contains two shader programs that renders the crystall ball based on environment map generated from Google Streetveiw API
+    <!-- This index.html file contains five shader programs that renders the crystall ball based on environment map generated from Google Streetveiw API
 
     Reference: http://math.hws.edu/eck/cs424/notes2013/webgl/skybox-and-reflection/skybox-and-env-map.html
 
     -->
     <!-- Shaders for SkyBox -->
+	<!-- Not used after shadow is implemented -->
     <script type="x-shader/x-vertex" id="vshaderBox">
         uniform mat4 projection;
         uniform mat4 modelview;
@@ -201,7 +202,8 @@
             float shadowMapValue = textureCube(lightShadowMap, -toLightNormal).r;
             vec3 N = normalize(-vNormal);
             float lightIntensity = 0.3;
-            if ((shadowMapValue + 0.1) >= fromLightToFrag) {
+			//if it is true, means not in shadow
+            if ((shadowMapValue + 0.001) >= fromLightToFrag) {
                 lightIntensity += 0.8 * max(dot(N, WtoLightNormal), 0.0);
             }
 
@@ -210,7 +212,7 @@
 
         }
     </script>
-
+<!-- Shaders wit shadow mapping generation -->
     <script type="x-shader/x-vertex" id="vshaderBoxShadowGen">
         precision mediump float;
 
@@ -239,7 +241,7 @@
         void main()
         {
             vec3 fromLightToFrag = (vcoords - lightPosition);
-
+			//normalize the distance into 0.0-1.0 range so that can be store in fragment
             float lightFragDist =
                 (length(fromLightToFrag) - shadowClipNearFar.x)
                 /
