@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Orbuculum
 
 An orbuculum is a crystal or glass ball and common fortune telling object. In this project, we propose to present street views in an orbuculum with fancy styles and also in an interactive way.  
