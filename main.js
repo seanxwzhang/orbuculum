@@ -458,7 +458,7 @@ animate();
 
 $(document).keydown(function(e){
     if(e.keyCode==32){
-        if(document.activeElement!=document.getElementById('start_button'))startButton(e);
+        if(document.activeElement!=document.getElementById('start_button')&&document.activeElement!=document.getElementById('pac-input'))startButton(e);
     }
 });
 
