@@ -55,6 +55,13 @@ var sigma = minSigma;
 var change = minSigma - maxSigma;
 var duration = 800;  // duration controls the total blur elapse time!
 var start;
+/**
+ * easing function to create a quad-in effect
+ * @param {number} t current time in ms
+ * @param {number} b begin value
+ * @param {number} c total change
+ * @param {number} d total duration
+ */
 function easingfunc(t, b, c, d) {
     return c*(t/=d)*t + b;
 }
@@ -131,6 +138,7 @@ function draw() {
         gl.useProgram(prog);
         gl.uniform3fv(gl.getUniformLocation(prog,"lightPosition"),lightPosition);
         gl.uniform1f(gl.getUniformLocation(prog,"shininess"),50);
+        // use sigma to control the blur effect
         gl.uniform1f(gl.getUniformLocation(prog,"sigma"),sigma);
         gl.uniform1i(gl.getUniformLocation(prog,"skybox"), 0);
         gl.activeTexture(gl.TEXTURE0);
@@ -143,7 +151,7 @@ function draw() {
         gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
     }
 
-      // draw smokes
+    // draw smokes
     if (textures.smokeTex && smokeParticles.length > 0) {
         evolveSmoke();
         gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
@@ -167,6 +175,7 @@ function draw() {
 
 
 function loadTexture(texID, urls) {
+    // sync loading all imgs then do the texture binding
     Promise.all(urls.map((url, idx) => {
         return new Promise(resolve => {
             let img = new Image();
@@ -204,7 +213,7 @@ function loadTexture(texID, urls) {
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imgs[0]);
             gl.generateMipmap(gl.TEXTURE_2D);
         }
-        // draw();
+        // every time loaded new texture, we create a graduate blur to clear effect.
         startBlur = true;
     });
 }
