@@ -83,8 +83,8 @@ function animate(now) {
 		lightPosition[0]+= (lightSign*1.0*delta_time1)/ 1000.0;
 		if(lightPosition[0]>=10.0||lightPosition[0]<=-10.0)lightSign= -lightSign;
 	}
-	lightlasttime = now; 
-	
+	lightlasttime = now;
+
     draw();
     requestAnimationFrame(animate);
 }
@@ -92,7 +92,7 @@ function animate(now) {
 // rotate the smoke
 function evolveSmoke() {
     var now = new Date();
-    var delta_time = lasttime - now;	
+    var delta_time = lasttime - now;
     lasttime = now;
     smokeParticles.map((particle) => {
         quat.rotateZ(particle.randQ,particle.randQ,delta_time * delta * Math.random() * 0.1);
@@ -102,7 +102,7 @@ function evolveSmoke() {
 // draw function that will be called every requested time frame
 function draw() {
     generateShadowMap();
-	
+
 	gl.clearColor(0,0,0,1);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -405,7 +405,7 @@ function init() {
         gl.enable(gl.DEPTH_TEST);
 
         initframebuffer();
-        
+
 
         rotator = new SimpleRotator(canvas, draw);
         rotator.setView([0,0,1], [0,1,0], 30);
@@ -470,11 +470,38 @@ lasttime = new Date();
 animate();
 
 $(document).keydown(function(e){
-    if(e.keyCode==32){
+    if (e.key===' ') {
         if(document.activeElement!=document.getElementById('start_button')&&document.activeElement!=document.getElementById('pac-input'))startButton(e);
+    } else if (e.key === 'f') {
+        toggleFullscreen();
     }
 });
 
 mapDiv.addEventListener('imgready',function(){
     loadTexture('orbuculumTex', [pos_x, neg_x, pos_y, neg_y, neg_z, pos_z]);
 });
+
+function toggleFullscreen() {
+    const oSize = {w: 600, h: 400};
+    document.querySelectorAll('section').forEach((s) => {
+      s.classList.toggle('fullscreen');
+    })
+    const cs = document.querySelector('#glcanvas');
+    if (cs.width === oSize.w) {
+        cs.width = window.innerWidth / 2;
+        cs.height = window.innerHeight;
+    } else {
+        cs.width = oSize.w;
+        cs.height = oSize.h;
+    }
+    const m = document.querySelector('#map');
+    if (m.style.width === '' || m.style.width === `${oSize.w}px`) {
+        console.log(m.style)
+        m.style.width = '100%';
+        m.style.height = '100%';
+    } else {
+        m.style.width = oSize.w + 'px';
+        m.style.height = oSize.h + 'px';
+    }
+}
+toggleFullscreen();

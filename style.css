@@ -39,9 +39,17 @@ main section {
   display: flex;
   justify-content: center;
   align-items: center;
+  left: 0;
 }
 .map-wrapper {
   position: relative;
+  right: 0;
+}
+.fullscreen {
+  position: absolute;
+  top: 0;
+  width: 50vw;
+  height: 100vh;
 }
 
 #message {
@@ -57,6 +65,7 @@ main section {
   width: 600px;
   height: 400px;
   outline: none;
+  left: 0;
 }
 #pac-container {
   position: absolute;
