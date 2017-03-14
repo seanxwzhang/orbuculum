@@ -28,6 +28,7 @@ var invMV = mat3.create();
 
 var oldmodelview = mat4.create();
 var lightPosition = vec3.fromValues(0,15,15);
+var lightSign = 1.0;
 
 var shadowMapFrameBuffer,shadowMapCube,shadowMapRenderBuffer;
 var floatExtension, floatLinearExtension;
@@ -48,6 +49,7 @@ var toggle = false;
 var textures = {};
 
 var lasttime;
+var lightlasttime = 0;
 
 var startBlur = false;
 var maxSigma = 2.0, minSigma = 0.3;
@@ -75,6 +77,14 @@ function animate(now) {
         var t = now - start;
         sigma = easingfunc(t, maxSigma, change, duration);
     }
+	var now = new Date().getTime();
+	if(lightlasttime!=0){
+		var delta_time1 = now - lightlasttime;
+		lightPosition[0]+= (lightSign*1.0*delta_time1)/ 1000.0;
+		if(lightPosition[0]>=10.0||lightPosition[0]<=-10.0)lightSign= -lightSign;
+	}
+	lightlasttime = now; 
+	
     draw();
     requestAnimationFrame(animate);
 }
@@ -82,7 +92,7 @@ function animate(now) {
 // rotate the smoke
 function evolveSmoke() {
     var now = new Date();
-    var delta_time = lasttime - now;
+    var delta_time = lasttime - now;	
     lasttime = now;
     smokeParticles.map((particle) => {
         quat.rotateZ(particle.randQ,particle.randQ,delta_time * delta * Math.random() * 0.1);
@@ -91,7 +101,9 @@ function evolveSmoke() {
 
 // draw function that will be called every requested time frame
 function draw() {
-    gl.clearColor(0,0,0,1);
+    generateShadowMap();
+	
+	gl.clearColor(0,0,0,1);
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -289,7 +301,8 @@ function createCamMatrix(){
  * the code of this function is revised from https://github.com/sessamekesh/IndigoCS-webgl-tutorials/blob/master/Shadow%20Mapping/LightMapDemoScene.js
  */
 function generateShadowMap(){
-    gl.useProgram(prog_shadow_gen);
+    createCamMatrix();
+	gl.useProgram(prog_shadow_gen);
 
     gl.bindTexture(gl.TEXTURE_CUBE_MAP, shadowMapCube);
     gl.bindFramebuffer(gl.FRAMEBUFFER, shadowMapFrameBuffer);
@@ -392,7 +405,7 @@ function init() {
         gl.enable(gl.DEPTH_TEST);
 
         initframebuffer();
-        createCamMatrix();
+        
 
         rotator = new SimpleRotator(canvas, draw);
         rotator.setView([0,0,1], [0,1,0], 30);
@@ -409,7 +422,7 @@ function init() {
         orbuculum.link(gl, prog);
         orbuculum.upload(gl);
 
-        generateShadowMap();
+        //generateShadowMap();
 
         for (let p = 0; p < Math.floor(numParticles / 2); p++) {
             var particle = new Square(30, [0.1, 0.4, 0.8, 1.0]);
