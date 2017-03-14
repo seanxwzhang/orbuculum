@@ -57,6 +57,26 @@ var sigma = minSigma;
 var change = minSigma - maxSigma;
 var duration = 800;  // duration controls the total blur elapse time!
 var start;
+
+var specialLocation = ['Tour Eiffel', 'Wall Street', 'Akihabara', 'Taipei 101 Taiwan', 'White House', 'UCLA', 'USC'];
+var specialSongs = {
+    'Akihabara': 'dragonball.mp3',
+    'USC': 'hardwired.mp3',
+    'UCLA': 'ucla.mp3'
+}
+var songs = [
+"amiwrong.mp3",
+"beatit.mp3",
+"friends.mp3",
+"igiorni.mp3",
+"periphescene.mp3",
+"roar.mp3",
+"sakura.mp3",
+"test.txt",
+"thriftshop.mp3"
+];
+var defaultSong = "igiorni.mp3";
+
 /**
  * easing function to create a quad-in effect
  * @param {number} t current time in ms
@@ -469,8 +489,11 @@ loadTexture('smokeTex', ["image/Smoke-Element.png"]);
 lasttime = new Date();
 animate();
 
-$(document).keydown(function(e){
-    if (e.key===' ') {
+var spaceCounter = 0;
+$(document).keypress(function(e){
+    console.log(e);
+    if(e.keyCode==32){
+        spaceCounter++;
         if(document.activeElement!=document.getElementById('start_button')&&document.activeElement!=document.getElementById('pac-input'))startButton(e);
     } else if (e.key === 'f') {
         toggleFullscreen();
@@ -505,3 +528,25 @@ function toggleFullscreen() {
     }
 }
 toggleFullscreen();
+
+$( document ).ready(function() {
+    var location = document.getElementById("final_span");
+    var player=document.getElementById('player');
+    player.load();
+    player.play();
+});
+
+$("#final_span")[0].addEventListener("switchSong", (e) => {
+    let location = e.detail;
+    var sourceMp3=document.getElementById('sourceMp3');
+    console.log("song:" + location);
+    if (!(location in specialSongs)) {
+        var song_ind = Math.floor(songs.length * Math.random());
+        var song = songs[song_ind];
+        sourceMp3.src='music/' + song;
+    } else {
+        sourceMp3.src='music/' + specialSongs[location];
+    }
+    player.load();
+    player.play();
+})
